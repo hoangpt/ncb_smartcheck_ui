@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { User, Lock, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { apiService } from '../services/api';
 
 const Login = () => {
-    const [username, setUsername] = useState('admin');
-    const [password, setPassword] = useState('123456Aa@');
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
@@ -15,16 +16,25 @@ const Login = () => {
         setIsLoading(true);
         setError('');
 
-        // Mock API Call
-        setTimeout(() => {
-            if (username === 'admin' && password === '123456Aa@') {
-                localStorage.setItem('isAuthenticated', 'true');
-                navigate('/');
-            } else {
-                setError('Tên đăng nhập hoặc mật khẩu không chính xác');
-                setIsLoading(false);
-            }
-        }, 1000);
+        try {
+            const response = await apiService.login({
+                emailOrUsername: username,
+                password: password,
+            });
+            
+            // Store authentication data
+            localStorage.setItem('isAuthenticated', 'true');
+            localStorage.setItem('access_token', response.access_token);
+            localStorage.setItem('user_id', String(response.user_id));
+            localStorage.setItem('username', response.username);
+            localStorage.setItem('role', response.role);
+            
+            navigate('/');
+        } catch (err: any) {
+            setError(err.message || 'Tên đăng nhập hoặc mật khẩu không chính xác');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (

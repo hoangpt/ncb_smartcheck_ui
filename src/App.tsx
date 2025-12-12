@@ -13,6 +13,22 @@ const ProtectedRoute = () => {
   return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
 };
 
+const AdminRoute = () => {
+  const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+  const role = localStorage.getItem('role');
+  const isAdmin = role === 'Admin';
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (!isAdmin) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <Outlet />;
+};
+
 function App() {
   return (
     <Router>
@@ -28,6 +44,11 @@ function App() {
             <Route path="/reconciliation/:id" element={<Workbench />} />
             <Route path="/exceptions" element={<Exceptions />} />
             <Route path="/config" element={<Config />} />
+            {/* Admin only routes */}
+            <Route element={<AdminRoute />}>
+              <Route path="/config" element={<Config />} />
+              {/*<Route path="/users" element={<UserManagement />} />*/}
+            </Route>
           </Route>
         </Route>
       </Routes>
