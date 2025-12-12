@@ -93,7 +93,7 @@ class ApiService {
     options: RequestInit = {}
   ): Promise<T> {
     const token = this.getAuthToken();
-    const headers: HeadersInit = {
+    const headers: any = {
       'Content-Type': 'application/json',
       ...options.headers,
     };
@@ -265,6 +265,5 @@ class ApiService {
 
 export const apiService = new ApiService();
 
-// Explicit type exports for better module compatibility
-export type { User, UserCreateRequest, UserUpdateRequest, LoginRequest, LoginResponse, DocumentBatch, DocumentBatchUpdateRequest, PageMapItem };
+
 
