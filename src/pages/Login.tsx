@@ -17,18 +17,38 @@ const Login = () => {
         setError('');
 
         try {
-            const response = await apiService.login({
-                emailOrUsername: username,
-                password: password,
-            });
-            
+            let response;
+            const useMock = import.meta.env.VITE_USE_MOCK === 'true';
+
+            if (useMock) {
+                // Mock delay
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                const { MOCK_USERS } = await import('../data/mock_user');
+                const mockUser = MOCK_USERS.find(u => u.username === username && u.password === password);
+
+                if (mockUser) {
+                    response = {
+                        ...mockUser.response,
+                        access_token: mockUser.response.access_token + Date.now() // Unique token
+                    };
+                } else {
+                    throw new Error('Tên đăng nhập hoặc mật khẩu không chính xác');
+                }
+            } else {
+                response = await apiService.login({
+                    emailOrUsername: username,
+                    password: password,
+                });
+            }
+
             // Store authentication data
             localStorage.setItem('isAuthenticated', 'true');
             localStorage.setItem('access_token', response.access_token);
             localStorage.setItem('user_id', String(response.user_id));
             localStorage.setItem('username', response.username);
             localStorage.setItem('role', response.role);
-            
+
             navigate('/');
         } catch (err: any) {
             setError(err.message || 'Tên đăng nhập hoặc mật khẩu không chính xác');
