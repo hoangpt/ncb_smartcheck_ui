@@ -1,12 +1,11 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
-import DocumentManager from './pages/DocumentManager';
-import Reconciliation from './pages/Reconciliation';
-import Workbench from './pages/Workbench';
-import Exceptions from './pages/Exceptions';
-import Config from './pages/Config';
-import UserManagement from './pages/UserManagement';
+import DocumentManager from './pages/smartcheck/DocumentManager';
+import Reconciliation from './pages/smartcheck/Reconciliation';
+import Workbench from './pages/smartcheck/Workbench';
+import Exceptions from './pages/smartcheck/Exceptions';
+import Config from './pages/config/Config';
 import MainLayout from './layout/MainLayout';
 
 const ProtectedRoute = () => {
@@ -18,15 +17,15 @@ const AdminRoute = () => {
   const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
   const role = localStorage.getItem('role');
   const isAdmin = role === 'Admin';
-  
+
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
-  
+
   if (!isAdmin) {
     return <Navigate to="/" replace />;
   }
-  
+
   return <Outlet />;
 };
 
@@ -48,7 +47,8 @@ function App() {
             <Route path="/config" element={<Config />} />
             {/* Admin only routes */}
             <Route element={<AdminRoute />}>
-              <Route path="/users" element={<UserManagement />} />
+              <Route path="/config" element={<Config />} />
+              {/*<Route path="/users" element={<UserManagement />} />*/}
             </Route>
           </Route>
         </Route>

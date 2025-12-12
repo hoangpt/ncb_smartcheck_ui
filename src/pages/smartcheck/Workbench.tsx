@@ -3,9 +3,9 @@ import {
     ArrowLeft, Scissors, Check, ZoomOut, ZoomIn,
     LayoutDashboard, CheckCircle, X, AlertTriangle, Save
 } from 'lucide-react';
-import { MOCK_DEALS } from '../data/mock';
-import type { Deal } from '../data/mock';
-import StatusBadge from '../components/StatusBadge';
+import { MOCK_DEALS } from '../../data/mock';
+import type { Deal } from '../../types';
+import StatusBadge from '../../components/StatusBadge';
 
 const Workbench = () => {
     const { id } = useParams();
