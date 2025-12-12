@@ -1,18 +1,33 @@
 import React, { useState } from 'react';
 import {
     LayoutDashboard, FileText, FileCheck, AlertOctagon, Settings,
-    Bell, Menu, X, LogOut
+    Bell, Menu, X, LogOut, Users
 } from 'lucide-react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { apiService } from '../services/api';
 
 const MainLayout = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    
+    const role = localStorage.getItem('role');
+    const username = localStorage.getItem('username') || 'User';
+    const isAdmin = role === 'Admin';
 
-    const handleLogout = () => {
-        localStorage.removeItem('isAuthenticated');
-        navigate('/login');
+    const handleLogout = async () => {
+        try {
+            await apiService.logout();
+        } catch (error) {
+            console.error('Logout error:', error);
+        } finally {
+            localStorage.removeItem('isAuthenticated');
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('user_id');
+            localStorage.removeItem('username');
+            localStorage.removeItem('role');
+            navigate('/login');
+        }
     };
 
     const isActive = (path: string) => location.pathname === path;
@@ -57,6 +72,15 @@ const MainLayout = () => {
                         active={isActive('/exceptions')} // Placeholder
                         onClick={() => navigate('/exceptions')}
                     />
+                    {isAdmin && (
+                        <NavItem
+                            icon={<Users size={20} />}
+                            label="Quản lý User"
+                            isOpen={isSidebarOpen}
+                            active={isActive('/users')}
+                            onClick={() => navigate('/users')}
+                        />
+                    )}
                     <div className="mt-8 border-t border-blue-800/50 pt-4">
                         <NavItem
                             icon={<Settings size={20} />}
@@ -87,6 +111,7 @@ const MainLayout = () => {
                         {isActive('/documents') && "Quản lý Lô chứng từ"}
                         {isActive('/reconciliation') && "Đối soát giao dịch"}
                         {isActive('/exceptions') && "Báo cáo ngoại lệ"}
+                        {isActive('/users') && "Quản lý Người dùng"}
                         {isActive('/config') && "Cấu hình hệ thống"}
                     </h1>
 
@@ -97,10 +122,12 @@ const MainLayout = () => {
                         </div>
                         <div className="flex items-center gap-3 pl-6 border-l border-gray-200 cursor-pointer group relative">
                             <div className="text-right hidden sm:block">
-                                <p className="text-sm font-semibold text-gray-700">Admin User</p>
-                                <p className="text-xs text-gray-500">System Admin</p>
+                                <p className="text-sm font-semibold text-gray-700">{username}</p>
+                                <p className="text-xs text-gray-500">{isAdmin ? 'Quản trị viên' : 'Người dùng'}</p>
                             </div>
-                            <div className="w-9 h-9 bg-blue-100 text-[#004A99] rounded-full flex items-center justify-center font-bold">A</div>
+                            <div className="w-9 h-9 bg-blue-100 text-[#004A99] rounded-full flex items-center justify-center font-bold">
+                                {username[0]?.toUpperCase() || 'U'}
+                            </div>
 
                             <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border overflow-hidden hidden group-hover:block animate-fade-in z-50">
                                 <button onClick={handleLogout} className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
