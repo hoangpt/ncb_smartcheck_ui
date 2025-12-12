@@ -1,0 +1,10 @@
+services:
+  app:
+    build: .
+    container_name: ncb-docs-check-ui
+    ports:
+      - "8080:80"
+    restart: always
+    # Environment variables that are needed at runtime (if any, though Vite apps usually bake them in at build time)
+    # To override VITE_ variables, you must build with them. 
+    # For runtime configuration in Nginx/SPA, specialized setups are needed.
