@@ -1,5 +1,5 @@
 import { AlertTriangle } from 'lucide-react';
-import { MOCK_EXCEPTIONS } from '../data/mock';
+import { MOCK_EXCEPTIONS } from '../../data/mock';
 
 const Exceptions = () => {
     return (

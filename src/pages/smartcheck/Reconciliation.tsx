@@ -1,8 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import { Filter, Download } from 'lucide-react';
-import { MOCK_DEALS } from '../data/mock';
-import type { Deal } from '../data/mock';
-import StatusBadge from '../components/StatusBadge';
+import { MOCK_DEALS } from '../../data/mock';
+import type { Deal } from '../../types';
+import StatusBadge from '../../components/StatusBadge';
 
 const Reconciliation = () => {
     const navigate = useNavigate();
