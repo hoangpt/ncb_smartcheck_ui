@@ -49,6 +49,40 @@ export interface UserUpdateRequest {
   status?: 'Active' | 'Inactive';
 }
 
+export interface PageMapItem {
+  range: string;
+  deal_id: string;
+  type: string;
+  status: 'ignored' | 'valid' | 'error';
+}
+
+export interface DocumentBatch {
+  id: number;
+  name: string;
+  uploaded_by_user_id: number;
+  uploaded_by?: string;
+  upload_time: string;
+  total_pages: number;
+  deals_detected: number;
+  status: 'processed' | 'processing' | 'error';
+  process_progress: number;
+  page_map?: PageMapItem[];
+  file_path?: string;
+  file_size?: number;
+  mime_type?: string;
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface DocumentBatchUpdateRequest {
+  name?: string;
+  total_pages?: number;
+  deals_detected?: number;
+  status?: 'processed' | 'processing' | 'error';
+  process_progress?: number;
+  page_map?: PageMapItem[];
+}
+
 class ApiService {
   private getAuthToken(): string | null {
     return localStorage.getItem('access_token');
@@ -146,7 +180,91 @@ class ApiService {
       method: 'DELETE',
     });
   }
+
+  async uploadDocumentBatch(file: File, name?: string): Promise<DocumentBatch> {
+    const token = this.getAuthToken();
+    const formData = new FormData();
+    formData.append('file', file);
+    if (name) {
+      formData.append('name', name);
+    }
+
+    const headers: HeadersInit = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${API_URL}/api/document-batches/upload`, {
+      method: 'POST',
+      headers,
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'An error occurred' }));
+      throw new Error(error.detail || `HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  }
+
+  async getDocumentBatches(params?: {
+    skip?: number;
+    limit?: number;
+  }): Promise<DocumentBatch[]> {
+    const queryParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          queryParams.append(key, String(value));
+        }
+      });
+    }
+    const query = queryParams.toString();
+    return this.request<DocumentBatch[]>(`/api/document-batches${query ? `?${query}` : ''}`);
+  }
+
+  async getDocumentBatchById(batchId: number): Promise<DocumentBatch> {
+    return this.request<DocumentBatch>(`/api/document-batches/${batchId}`);
+  }
+
+  async updateDocumentBatch(
+    batchId: number,
+    update: DocumentBatchUpdateRequest
+  ): Promise<DocumentBatch> {
+    return this.request<DocumentBatch>(`/api/document-batches/${batchId}`, {
+      method: 'PUT',
+      body: JSON.stringify(update),
+    });
+  }
+
+  async deleteDocumentBatch(batchId: number): Promise<void> {
+    return this.request<void>(`/api/document-batches/${batchId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async downloadDocumentBatch(batchId: number): Promise<Blob> {
+    const token = this.getAuthToken();
+    const headers: HeadersInit = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${API_URL}/api/document-batches/${batchId}/download`, {
+      headers,
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.blob();
+  }
 }
 
 export const apiService = new ApiService();
+
+// Explicit type exports for better module compatibility
+export type { User, UserCreateRequest, UserUpdateRequest, LoginRequest, LoginResponse, DocumentBatch, DocumentBatchUpdateRequest, PageMapItem };
 
