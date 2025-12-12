@@ -3,8 +3,8 @@ import {
     Upload, FileText, ChevronDown, ChevronUp,
     Scissors, CheckCircle, AlertTriangle, Eye
 } from 'lucide-react';
-import { MOCK_FILES } from '../data/mock';
-import type { FileRecord } from '../data/mock';
+import { MOCK_FILES } from '../../data/mock';
+import type { FileRecord } from '../../types';
 
 const DocumentManager = () => {
     const [expandedFileId, setExpandedFileId] = useState<string | null>("FILE_20251018_01");

@@ -1,11 +1,11 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
-import DocumentManager from './pages/DocumentManager';
-import Reconciliation from './pages/Reconciliation';
-import Workbench from './pages/Workbench';
-import Exceptions from './pages/Exceptions';
-import Config from './pages/Config';
+import DocumentManager from './pages/smartcheck/DocumentManager';
+import Reconciliation from './pages/smartcheck/Reconciliation';
+import Workbench from './pages/smartcheck/Workbench';
+import Exceptions from './pages/smartcheck/Exceptions';
+import Config from './pages/config/Config';
 import MainLayout from './layout/MainLayout';
 
 const ProtectedRoute = () => {
