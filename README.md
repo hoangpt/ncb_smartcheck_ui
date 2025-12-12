@@ -71,3 +71,5 @@ export default defineConfig([
   },
 ])
 ```
+
+Hello from CMC Team.
