@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Search, Edit, Trash2, User as UserIcon, Mail, Briefcase, Shield, CheckCircle, XCircle } from 'lucide-react';
-import { apiService, User, UserCreateRequest, UserUpdateRequest } from '../services/api';
+import { apiService } from '../services/api';
+import type { User, UserCreateRequest, UserUpdateRequest } from '../services/api';
 
 const UserManagement = () => {
   const [users, setUsers] = useState<User[]>([]);

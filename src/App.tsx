@@ -39,6 +39,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route element={<MainLayout />}>
             <Route path="/" element={<Dashboard />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/documents" element={<DocumentManager />} />
             <Route path="/reconciliation" element={<Reconciliation />} />
             <Route path="/reconciliation/:id" element={<Workbench />} />
