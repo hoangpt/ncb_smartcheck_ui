@@ -23,7 +23,7 @@ Trước khi bắt đầu, hãy đảm bảo máy tính của bạn đã cài đ
 
 ### Môi trường phát triển (Development)
 
-Để chạy ứng dụng trong môi trường phát triển (dev mode) với tính năng Hot Module Replacement  (HMR):
+Để chạy ứng dụng trong môi trường phát triển (dev mode) với tính năng Hot Module Replacement (HMR):
 
 ```bash
 npm run dev
