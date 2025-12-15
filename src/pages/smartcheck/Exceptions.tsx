@@ -5,7 +5,7 @@ const Exceptions = () => {
     return (
         <div className="p-8 animate-fade-in">
             <h2 className="text-2xl font-bold text-gray-800 mb-6">Báo cáo ngoại lệ</h2>
-            <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
                 <div className="p-4 bg-red-50 border-b border-red-100 flex items-center gap-2 text-red-800">
                     <AlertTriangle size={20} />
                     <span className="font-semibold">Phát hiện {MOCK_EXCEPTIONS.length} vấn đề cần xử lý thủ công</span>
@@ -20,7 +20,7 @@ const Exceptions = () => {
                             <th className="px-6 py-3 text-right">Hành động</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y">
+                    <tbody className="divide-y divide-[#ddd]">
                         {MOCK_EXCEPTIONS.map(ex => (
                             <tr key={ex.id} className="hover:bg-gray-50">
                                 <td className="px-6 py-4">

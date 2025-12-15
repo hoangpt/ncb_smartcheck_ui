@@ -25,14 +25,14 @@ const Reconciliation = () => {
             </div>
 
             {/* Filter Tabs */}
-            <div className="flex gap-4 mb-6 border-b pb-1">
+            <div className="flex gap-4 mb-6 border-b pb-1 border-[#ccc]">
                 <button className="px-4 py-2 text-[#004A99] font-bold border-b-2 border-[#004A99]">Tất cả (16)</button>
                 <button className="px-4 py-2 text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-t">Chờ duyệt (4)</button>
                 <button className="px-4 py-2 text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-t">Ngoại lệ (2)</button>
                 <button className="px-4 py-2 text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-t">Đã hoàn thành (10)</button>
             </div>
 
-            <div className="bg-white rounded-lg shadow border overflow-hidden">
+            <div className="bg-white rounded-lg shadow border border-[#ddd] overflow-hidden">
                 <table className="w-full text-sm text-left">
                     <thead className="bg-gray-100 text-gray-600 font-semibold uppercase text-xs">
                         <tr>
@@ -44,7 +44,7 @@ const Reconciliation = () => {
                             <th className="px-6 py-4"></th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y">
+                    <tbody className="divide-y divide-[#ddd]">
                         {MOCK_DEALS.map((deal: Deal) => (
                             <tr
                                 key={deal.id}
