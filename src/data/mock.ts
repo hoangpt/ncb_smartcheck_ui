@@ -7,9 +7,9 @@ export const MOCK_FILES: FileRecord[] = [
         id: "FILE_20251018_01",
         name: "18.10.2025 HATTT1_0001.pdf",
         uploadedBy: "Trần Thu Hà",
-        uploadTime: "18/10/2025 08:30",
+        uploadTime: "16/12/2025 08:30",
         total_pages: 44,
-        deals_detected: 16,
+        deals_detected: 5,
         status: "processed",
         process_progress: 100,
         page_map: [
@@ -20,6 +20,38 @@ export const MOCK_FILES: FileRecord[] = [
             { range: "8-10", deal_id: "FC207TQD...002", type: "Deal", status: "valid" },
             { range: "11-12", deal_id: "FC208TQD...003", type: "Deal", status: "valid" },
             { range: "13-14", deal_id: "FC208TQD...004", type: "Deal", status: "valid" },
+        ]
+    },
+    {
+        id: "FILE_20251216_01",
+        name: "16.12.2025 GDV_HOANGPT01.pdf",
+        uploadedBy: "Phạm Thu Hoàng",
+        uploadTime: "16/12/2025 09:15",
+        total_pages: 12,
+        deals_detected: 4,
+        status: "processed",
+        process_progress: 100,
+        page_map: [
+            { range: "1-1", deal_id: "N/A", type: "Cover", status: "ignored" },
+            { range: "2-4", deal_id: "FC208TQD...005", type: "Deal", status: "valid" },
+            { range: "5-7", deal_id: "FC208TQD...006", type: "Deal", status: "valid" },
+            { range: "8-9", deal_id: "FC208TQD...007", type: "Deal", status: "valid" },
+            { range: "10-12", deal_id: "FC208TQD...008", type: "Deal", status: "valid" }
+        ]
+    },
+    {
+        id: "FILE_20251216_02",
+        name: "16.12.2025 TELLER_ANHNV.pdf",
+        uploadedBy: "Nguyễn Văn Anh",
+        uploadTime: "16/12/2025 10:30",
+        total_pages: 8,
+        deals_detected: 2,
+        status: "processed",
+        process_progress: 100,
+        page_map: [
+            { range: "1-3", deal_id: "FC208TQD...009", type: "Deal", status: "valid" },
+            { range: "4-4", deal_id: "N/A", type: "Other", status: "ignored" },
+            { range: "5-8", deal_id: "FC208TQD...010", type: "Deal", status: "valid" }
         ]
     }
 ];
