@@ -1,13 +1,137 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     Upload, FileText, ChevronDown, ChevronUp,
     Scissors, CheckCircle, AlertTriangle, Eye
 } from 'lucide-react';
 import { MOCK_FILES } from '../../data/mock';
 import type { FileRecord } from '../../types';
+import UploadModal from '../../components/UploadModal';
+
+// Timings in milliseconds
+const TIMING = {
+    UPLOAD: 15000,
+    SCAN: 60000,
+    SPLIT: 120000,
+    STRUCTURE: 120000,
+    MATCHING: 195000
+};
+
+// Cumulative time points for easier calculation
+const TIME_POINTS = {
+    UPLOAD_DONE: TIMING.UPLOAD,
+    SCAN_DONE: TIMING.UPLOAD + TIMING.SCAN,
+    SPLIT_DONE: TIMING.UPLOAD + TIMING.SCAN + TIMING.SPLIT,
+    STRUCTURE_DONE: TIMING.UPLOAD + TIMING.SCAN + TIMING.SPLIT + TIMING.STRUCTURE,
+    MATCHING_DONE: TIMING.UPLOAD + TIMING.SCAN + TIMING.SPLIT + TIMING.STRUCTURE + TIMING.MATCHING,
+};
 
 const DocumentManager = () => {
     const [expandedFileId, setExpandedFileId] = useState<string | null>("FILE_20251018_01");
+    const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+    const [files, setFiles] = useState<FileRecord[]>(MOCK_FILES);
+    const [activeUploadIds, setActiveUploadIds] = useState<string[]>([]);
+
+    // Effect to run simulation loop
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setFiles(currentFiles => {
+                let hasChanges = false;
+                const updatedFiles = currentFiles.map(file => {
+                    // Skip files that are already completed or not new uploads
+                    if (file.status !== 'processing' || !file.id.startsWith('NEW_FILE')) {
+                        return file;
+                    }
+
+                    const startTime = parseInt(file.id.split('_')[2]); // Extract timestamp from ID
+                    const elapsed = Date.now() - startTime;
+
+                    let newProgress = file.process_progress;
+                    let newStatus: 'processing' | 'completed' | 'error' = 'processing';
+
+                    // Update progress based on elapsed time vs total time
+                    if (elapsed < TIME_POINTS.UPLOAD_DONE) {
+                        const stageProgress = (elapsed / TIMING.UPLOAD) * 10;
+                        newProgress = Math.min(10, stageProgress);
+                    } else if (elapsed < TIME_POINTS.SCAN_DONE) {
+                        const stageElapsed = elapsed - TIME_POINTS.UPLOAD_DONE;
+                        const stageProgress = (stageElapsed / TIMING.SCAN) * 20;
+                        newProgress = 10 + stageProgress;
+                    } else if (elapsed < TIME_POINTS.SPLIT_DONE) {
+                        const stageElapsed = elapsed - TIME_POINTS.SCAN_DONE;
+                        const stageProgress = (stageElapsed / TIMING.SPLIT) * 25;
+                        newProgress = 30 + stageProgress;
+                    } else if (elapsed < TIME_POINTS.STRUCTURE_DONE) {
+                        const stageElapsed = elapsed - TIME_POINTS.SPLIT_DONE;
+                        const stageProgress = (stageElapsed / TIMING.STRUCTURE) * 25;
+                        newProgress = 55 + stageProgress;
+                    } else if (elapsed < TIME_POINTS.MATCHING_DONE) {
+                        const stageElapsed = elapsed - TIME_POINTS.STRUCTURE_DONE;
+                        const stageProgress = (stageElapsed / TIMING.MATCHING) * 20;
+                        newProgress = 80 + stageProgress;
+                    } else {
+                        newProgress = 100;
+                        newStatus = 'completed';
+                    }
+
+                    if (Math.floor(newProgress) !== Math.floor(file.process_progress) || newStatus !== file.status) {
+                        hasChanges = true;
+                        return {
+                            ...file,
+                            process_progress: Math.floor(newProgress),
+                            status: newStatus
+                        };
+                    }
+                    return file;
+                });
+
+                return hasChanges ? updatedFiles : currentFiles;
+            });
+        }, 1000); // Check every second
+
+        return () => clearInterval(interval);
+    }, []);
+
+    const handleUpload = (uploadedFiles: File[]) => {
+        // Create new records for uploaded files
+        const newFileIds: string[] = [];
+        const newRecords: FileRecord[] = uploadedFiles.map((file, index) => {
+            const id = `NEW_FILE_${Date.now()}_${index}`;
+            newFileIds.push(id);
+            return {
+                id,
+                name: file.name,
+                uploadTime: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+                uploadedBy: "Admin User",
+                status: 'processing',
+                process_progress: 0,
+                total_pages: Math.floor(Math.random() * 10) + 1,
+                deals_detected: Math.floor(Math.random() * 5) + 1,
+                page_map: []
+            };
+        });
+
+        setActiveUploadIds(newFileIds);
+        setFiles(prev => [...newRecords, ...prev]);
+        // Do NOT close modal automatically, keep it open to show progress
+    };
+
+    const handleCloseModal = () => {
+        setActiveUploadIds([]); // Clear active uploads view
+        setIsUploadModalOpen(false);
+    };
+
+    // Filter files that are currently being viewed in the modal
+    const processingFiles = files.filter(f => activeUploadIds.includes(f.id));
+
+    // Helper to get status text
+    const getStatusText = (progress: number) => {
+        if (progress < 10) return "Đang upload...";
+        if (progress < 30) return "Đang scan & OCR...";
+        if (progress < 55) return "Đang split file...";
+        if (progress < 80) return "Đang structure dữ liệu...";
+        if (progress < 100) return "Đang matching & chấm điểm...";
+        return "Hoàn thành";
+    };
 
     return (
         <div className="p-8 animate-fade-in space-y-6">
@@ -16,7 +140,10 @@ const DocumentManager = () => {
                     <h2 className="text-2xl font-bold text-gray-800">Quản lý Lô chứng từ</h2>
                     <p className="text-gray-500 mt-1">Upload và theo dõi trạng thái cắt Deal từ file scan</p>
                 </div>
-                <button className="bg-[#004A99] hover:bg-blue-800 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-lg active:scale-95 transition-transform">
+                <button
+                    onClick={() => setIsUploadModalOpen(true)}
+                    className="bg-[#004A99] hover:bg-blue-800 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-lg active:scale-95 transition-transform"
+                >
                     <Upload size={18} />
                     <span>Upload File Scan Mới</span>
                 </button>
@@ -26,7 +153,7 @@ const DocumentManager = () => {
             <div className="grid grid-cols-3 gap-6">
                 <div className="bg-white p-4 rounded-xl shadow-sm border flex items-center gap-4 border-[#ddd]">
                     <div className="p-3 bg-blue-50 text-blue-700 rounded-lg"><FileText size={24} /></div>
-                    <div><p className="text-sm text-gray-500">File trong ngày</p><p className="text-2xl font-bold">12</p></div>
+                    <div><p className="text-sm text-gray-500">File trong ngày</p><p className="text-2xl font-bold">{files.length}</p></div>
                 </div>
                 <div className="bg-white p-4 rounded-xl shadow-sm border flex items-center gap-4 border-[#ddd]">
                     <div className="p-3 bg-green-50 text-green-700 rounded-lg"><Scissors size={24} /></div>
@@ -40,7 +167,7 @@ const DocumentManager = () => {
 
             {/* File List */}
             <div className="space-y-4">
-                {MOCK_FILES.map((file: FileRecord) => (
+                {files.map((file: FileRecord) => (
                     <div key={file.id} className="bg-white rounded-xl shadow-sm overflow-hidden">
                         {/* File Header */}
                         <div
@@ -63,7 +190,7 @@ const DocumentManager = () => {
                                 {file.status === 'processing' ? (
                                     <div className="w-48">
                                         <div className="flex justify-between text-xs mb-1">
-                                            <span className="text-blue-600 font-medium">Đang xử lý...</span>
+                                            <span className="text-blue-600 font-medium">{getStatusText(file.process_progress)}</span>
                                             <span>{file.process_progress}%</span>
                                         </div>
                                         <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -128,6 +255,13 @@ const DocumentManager = () => {
                     </div>
                 ))}
             </div>
+
+            <UploadModal
+                isOpen={isUploadModalOpen}
+                onClose={handleCloseModal}
+                onUpload={handleUpload}
+                processingFiles={processingFiles}
+            />
         </div>
     );
 };
