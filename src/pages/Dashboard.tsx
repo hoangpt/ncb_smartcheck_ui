@@ -1,20 +1,30 @@
-import { ArrowRight, BarChart3, PieChart, AlertOctagon, FileText } from 'lucide-react';
+import { ArrowRight, BarChart3, PieChart, AlertOctagon, FileText, CheckCircle2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useI18n } from '../i18n/I18nProvider';
 
 const Dashboard = () => {
     const navigate = useNavigate();
+    const { t } = useI18n();
+    const username = localStorage.getItem('username') || 'User';
     return (
         <div className="p-8 animate-fade-in">
             {/* Welcome Banner */}
             <div className="bg-gradient-to-r from-[#004A99] to-[#003366] rounded-2xl p-8 text-white shadow-lg mb-8 relative overflow-hidden">
                 <div className="relative z-10">
-                    <h2 className="text-3xl font-bold mb-2">Xin chào, Admin User!</h2>
-                    <p className="text-blue-100 max-w-xl">Hệ thống Smart Doc Check đã sẵn sàng. Hôm nay có 12 lô chứng từ mới cần xử lý.</p>
+                    <h2 className="text-3xl font-bold mb-2">{t('dashboard.greeting', { name: username })}</h2>
+                    <div className="mt-2 flex items-center gap-3 text-white/90">
+                        <CheckCircle2 size={18} className="text-green-300 drop-shadow-sm" />
+                        <span className="font-medium tracking-wide md:text-base">{t('dashboard.subtitleReady')}</span>
+                    </div>
+                    <div className="mt-4 inline-flex items-center gap-2 px-4 py-1.5 rounded-2xl bg-white/10 backdrop-blur-sm text-white/95 font-semibold ring-1 ring-white/25 shadow-lg">
+                        <FileText size={16} className="text-white/90" />
+                        <span dangerouslySetInnerHTML={{ __html: t('dashboard.highlight', { count: 12 }).replace('12', "<span class='text-yellow-300 font-extrabold'>12</span>") }} />
+                    </div>
                     <button
                         onClick={() => navigate('/documents')}
-                        className="mt-6 bg-white text-[#004A99] px-6 py-2.5 rounded-lg font-bold shadow hover:bg-blue-50 transition-colors flex items-center gap-2"
+                        className="mt-6 cursor-pointer bg-white text-[#004A99] px-6 py-2.5 rounded-lg font-bold shadow hover:bg-blue-50 transition-colors flex items-center gap-2"
                     >
-                        Bắt đầu làm việc <ArrowRight size={18} />
+                        {t('common.startWork')} <ArrowRight size={18} />
                     </button>
                 </div>
                 {/* Decorative Circles */}
@@ -25,26 +35,26 @@ const Dashboard = () => {
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <StatCard
-                    title="Tỷ lệ Tự động hóa"
+                    title={t('dashboard.stats.automationRate')}
                     value="85%"
                     trend="+2.5%"
-                    detail="So với tuần trước"
+                    detail={t('dashboard.stats.vsLastWeek')}
                     icon={<BarChart3 className="text-green-600" size={24} />}
                     color="green"
                 />
                 <StatCard
-                    title="Độ chính xác OCR"
+                    title={t('dashboard.stats.ocrAccuracy')}
                     value="98.2%"
                     trend="+0.8%"
-                    detail="Model v2.1"
+                    detail={t('dashboard.stats.modelVersion', { version: 'v2.1' })}
                     icon={<PieChart className="text-blue-600" size={24} />}
                     color="blue"
                 />
                 <StatCard
-                    title="Cảnh báo Rủi ro"
+                    title={t('dashboard.stats.riskAlerts')}
                     value="3"
                     trend="High"
-                    detail="Cần xử lý ngay"
+                    detail={t('dashboard.stats.needsImmediateAttention')}
                     icon={<AlertOctagon className="text-red-500" size={24} />}
                     color="red"
                 />
@@ -54,14 +64,14 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-[#ddd] border-gray-200">
                     <h3 className="font-bold text-gray-800 mb-4 flex items-center justify-between">
-                        <span>Phân tích Lưu lượng</span>
+                        <span>{t('dashboard.analysis.title')}</span>
                         <select className="text-sm bg-gray-50 border rounded px-2 py-1 outline-none text-gray-500">
-                            <option>7 ngày qua</option>
-                            <option>Tháng này</option>
+                            <option>{t('dashboard.analysis.last7Days')}</option>
+                            <option>{t('dashboard.analysis.thisMonth')}</option>
                         </select>
                     </h3>
                     <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center text-gray-400 border border-dashed">
-                        [Bar Chart Placeholder: Daily Processed Deals]
+                        {t('dashboard.analysis.placeholder')}
                     </div>
                 </div>
 

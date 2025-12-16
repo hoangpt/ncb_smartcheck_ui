@@ -1,0 +1,188 @@
+{
+  "common": {
+    "appName": "Smart Doc Check",
+    "startWork": "Bắt đầu làm việc",
+    "role": {
+      "admin": "Quản trị viên",
+      "user": "Người dùng"
+    },
+    "logout": "Đăng xuất"
+  },
+  "status": {
+    "matched": "Khớp đúng",
+    "review": "Cần kiểm tra",
+    "mismatch": "Lệch dữ liệu",
+    "processed": "Đã xử lý",
+    "processing": "Đang chạy...",
+    "error": "Lỗi"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "documents": "Quản lý Lô",
+    "reconciliation": "Đối soát",
+    "exceptions": "Ngoại lệ",
+    "users": "Quản lý User",
+    "config": "Cấu hình"
+  },
+  "header": {
+    "title": {
+      "dashboard": "Dashboard Tổng quan",
+      "documents": "Quản lý Lô chứng từ",
+      "reconciliation": "Đối soát giao dịch",
+      "exceptions": "Báo cáo ngoại lệ",
+      "users": "Quản lý Người dùng",
+      "config": "Cấu hình hệ thống"
+    }
+  },
+  "dashboard": {
+    "greeting": "Xin chào, {name}!",
+    "subtitleReady": "Hệ thống Smart Doc Check đã sẵn sàng",
+    "highlight": "Hôm nay có {count} lô chứng từ mới cần xử lý",
+    "analysis": {
+      "title": "Phân tích Lưu lượng",
+      "last7Days": "7 ngày qua",
+      "thisMonth": "Tháng này",
+      "placeholder": "[Biểu đồ cột: Số lô xử lý mỗi ngày]"
+    },
+    "stats": {
+      "automationRate": "Tỷ lệ Tự động hóa",
+      "vsLastWeek": "So với tuần trước",
+      "ocrAccuracy": "Độ chính xác OCR",
+      "modelVersion": "Phiên bản {{version}}",
+      "riskAlerts": "Cảnh báo Rủi ro",
+      "needsImmediateAttention": "Cần xử lý ngay"
+    }    
+  },
+  "login": {
+    "username": "Tên đăng nhập",
+    "password": "Mật khẩu",
+    "login": "Đăng nhập",
+    "error": "Tên đăng nhập hoặc mật khẩu không chính xác"
+  },
+  "reconciliation": {
+    "title": "Đối soát giao dịch",
+    "subtitle": "Danh sách các Deal đã được cắt và sẵn sàng chấm điểm",
+    "exportExcel": "Xuất Excel",
+    "tabs": {
+      "all": "Tất cả ({total})",
+      "pending": "Chờ duyệt ({count})",
+      "exceptions": "Ngoại lệ ({count})",
+      "done": "Đã hoàn thành ({count})"
+    },
+    "table": {
+      "dealId": "Deal ID",
+      "sourceFile": "Nguồn File",
+      "unit": "Đơn vị",
+      "amountVND": "Giá trị (VND)",
+      "status": "Trạng thái",
+      "scoreAction": "Chấm điểm"
+    },
+    "pageLabel": "Trang {range}"
+  }
+  ,
+  "exceptions": {
+    "title": "Báo cáo ngoại lệ",
+    "banner": "Phát hiện {count} vấn đề cần xử lý thủ công",
+    "table": {
+      "severity": "Mức độ",
+      "errorType": "Loại lỗi",
+      "description": "Mô tả chi tiết",
+      "source": "Nguồn",
+      "actions": "Hành động",
+      "viewSource": "Xem nguồn",
+      "ignore": "Bỏ qua"
+    },
+    "severity": {
+      "high": "Cao",
+      "medium": "TB",
+      "low": "Thấp"
+    },
+    "empty": "Không có ngoại lệ nào cần xử lý.",
+    "confirmIgnore": "Bạn có chắc chắn muốn bỏ qua lỗi này?"
+  },
+  "references": {
+    "sidebar": {
+      "brand": "NCB CORE",
+      "documents": "Quản lý Lô chứng từ",
+      "reconciliation": "Đối soát giao dịch",
+      "exceptions": "Báo cáo ngoại lệ",
+      "system": "Hệ thống",
+      "config": "Cấu hình"
+    },
+    "documentManager": {
+      "title": "Quản lý Lô chứng từ",
+      "subtitle": "Upload và theo dõi trạng thái cắt Deal từ file scan",
+      "uploadNew": "Upload File Scan Mới",
+      "goToScoring": "Chuyển sang chấm điểm các deal này",
+      "splittingMap": "Sơ đồ cắt trang",
+      "splitError": "Lỗi cắt trang",
+      "uploadMeta": "Upload: {time} bởi {user} • {pages} trang",
+      "dealsCount": "{count} Deals",
+      "pageLabel": "Trang {range}",
+      "viewDetail": "Xem chi tiết",
+      "editSplitting": "Chỉnh sửa cắt trang",
+      "status": {
+        "upload": "Đang upload...",
+        "scan": "Đang scan & OCR...",
+        "split": "Đang split file...",
+        "structure": "Đang structure dữ liệu...",
+        "matching": "Đang matching & chấm điểm...",
+        "done": "Hoàn thành"
+      }
+    },
+    "stats": {
+      "filesToday": "File trong ngày",
+      "totalDealsExtracted": "Tổng Deals bóc tách",
+      "unrecognizedPages": "Trang chưa nhận diện"
+    },
+    "reconciliation": {
+      "title": "Đối soát giao dịch",
+      "subtitle": "Danh sách các Deal đã được cắt và sẵn sàng chấm điểm",
+      "exportExcel": "Xuất Excel",
+      "tabs": {
+        "all": "Tất cả ({total})",
+        "pending": "Chờ duyệt ({count})",
+        "exceptions": "Ngoại lệ ({count})",
+        "done": "Đã hoàn thành ({count})"
+      },
+      "table": {
+        "dealId": "Deal ID",
+        "sourceFile": "Nguồn File",
+        "unit": "Đơn vị",
+        "amountVND": "Giá trị (VND)",
+        "status": "Trạng thái",
+        "scoreAction": "Chấm điểm"
+      }
+    },
+    "exceptions": {
+      "title": "Báo cáo ngoại lệ",
+      "table": {
+        "severity": "Mức độ",
+        "errorType": "Loại lỗi",
+        "description": "Mô tả chi tiết",
+        "source": "Nguồn",
+        "actions": "Hành động",
+        "viewSource": "Xem nguồn",
+        "ignore": "Bỏ qua"
+      }
+    },
+    "config": {
+      "title": "Cấu hình hệ thống",
+      "splittingRules": "Quy tắc Cắt & Phân loại",
+      "regexDealId": "Regex nhận diện Deal ID (Start Page)",
+      "test": "Test"
+    },
+    "workbench": {
+      "transactionInfo": "Thông tin giao dịch",
+      "ocrData": "Dữ liệu trích xuất (OCR)",
+      "coreData": "Dữ liệu hệ thống (Core)",
+      "amountVND": "Số tiền (VND)",
+      "systemAmount": "System Amount",
+      "customerUnit": "Khách hàng / Đơn vị",
+      "signatureMatch": "Đối chiếu chữ ký",
+      "reportIssue": "Báo cáo sai sót",
+      "skip": "Bỏ qua",
+      "saveAndContinue": "Lưu & Tiếp tục"
+    }
+  }
+}

@@ -8,6 +8,7 @@ import { MOCK_FILES } from '../../data/mock';
 import type { FileRecord } from '../../types';
 import UploadModal from '../../components/UploadModal';
 import SplittingEditor from '../../components/SplittingEditor';
+import { useI18n } from '../../i18n/I18nProvider';
 
 // Timings in milliseconds
 const TIMING = {
@@ -29,6 +30,7 @@ const TIME_POINTS = {
 
 const DocumentManager = () => {
     const navigate = useNavigate();
+    const { t } = useI18n();
     const [expandedFileId, setExpandedFileId] = useState<string | null>("FILE_20251018_01");
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
     const [files, setFiles] = useState<FileRecord[]>(MOCK_FILES);
@@ -145,27 +147,27 @@ const DocumentManager = () => {
 
     // Helper to get status text
     const getStatusText = (progress: number) => {
-        if (progress < 10) return "Đang upload...";
-        if (progress < 30) return "Đang scan & OCR...";
-        if (progress < 55) return "Đang split file...";
-        if (progress < 80) return "Đang structure dữ liệu...";
-        if (progress < 100) return "Đang matching & chấm điểm...";
-        return "Hoàn thành";
+        if (progress < 10) return t('references.documentManager.status.upload');
+        if (progress < 30) return t('references.documentManager.status.scan');
+        if (progress < 55) return t('references.documentManager.status.split');
+        if (progress < 80) return t('references.documentManager.status.structure');
+        if (progress < 100) return t('references.documentManager.status.matching');
+        return t('references.documentManager.status.done');
     };
 
     return (
         <div className="p-8 animate-fade-in space-y-6">
             <div className="flex justify-between items-end">
                 <div>
-                    <h2 className="text-2xl font-bold text-gray-800">Quản lý Lô chứng từ</h2>
-                    <p className="text-gray-500 mt-1">Upload và theo dõi trạng thái cắt Deal từ file scan</p>
+                    <h2 className="text-2xl font-bold text-gray-800">{t('references.documentManager.title')}</h2>
+                    <p className="text-gray-500 mt-1">{t('references.documentManager.subtitle')}</p>
                 </div>
                 <button
                     onClick={() => setIsUploadModalOpen(true)}
                     className="bg-[#004A99] hover:bg-blue-800 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-lg active:scale-95 transition-transform"
                 >
                     <Upload size={18} />
-                    <span>Upload File Scan Mới</span>
+                    <span>{t('references.documentManager.uploadNew')}</span>
                 </button>
             </div>
 
@@ -173,15 +175,15 @@ const DocumentManager = () => {
             <div className="grid grid-cols-3 gap-6">
                 <div className="bg-white p-4 rounded-xl shadow-sm border flex items-center gap-4 border-[#ddd]">
                     <div className="p-3 bg-blue-50 text-blue-700 rounded-lg"><FileText size={24} /></div>
-                    <div><p className="text-sm text-gray-500">File trong ngày</p><p className="text-2xl font-bold">{files.length}</p></div>
+                    <div><p className="text-sm text-gray-500">{t('references.stats.filesToday')}</p><p className="text-2xl font-bold">{files.length}</p></div>
                 </div>
                 <div className="bg-white p-4 rounded-xl shadow-sm border flex items-center gap-4 border-[#ddd]">
                     <div className="p-3 bg-green-50 text-green-700 rounded-lg"><Scissors size={24} /></div>
-                    <div><p className="text-sm text-gray-500">Tổng Deals bóc tách</p><p className="text-2xl font-bold">186</p></div>
+                    <div><p className="text-sm text-gray-500">{t('references.stats.totalDealsExtracted')}</p><p className="text-2xl font-bold">186</p></div>
                 </div>
                 <div className="bg-white p-4 rounded-xl shadow-sm border flex items-center gap-4 border-[#ddd]">
                     <div className="p-3 bg-amber-50 text-amber-700 rounded-lg"><AlertTriangle size={24} /></div>
-                    <div><p className="text-sm text-gray-500">Trang chưa nhận diện</p><p className="text-2xl font-bold">5</p></div>
+                    <div><p className="text-sm text-gray-500">{t('references.stats.unrecognizedPages')}</p><p className="text-2xl font-bold">5</p></div>
                 </div>
             </div>
 
@@ -208,7 +210,7 @@ const DocumentManager = () => {
                                 <div>
                                     <h4 className="font-bold text-[#004A99]">{file.name}</h4>
                                     <p className="text-xs text-gray-500">
-                                        Upload: {file.uploadTime} bởi {file.uploadedBy} • {file.total_pages} trang
+                                        {t('references.documentManager.uploadMeta', { time: file.uploadTime, user: file.uploadedBy, pages: file.total_pages })}
                                     </p>
                                 </div>
                             </div>
@@ -227,11 +229,11 @@ const DocumentManager = () => {
                                 ) : (
                                     <div className="flex items-center gap-2">
                                         <div className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold border border-green-200">
-                                            {file.deals_detected} Deals
+                                            {t('references.documentManager.dealsCount', { count: file.deals_detected })}
                                         </div>
                                         {file.page_map.some(p => p.status === 'error') && (
                                             <div className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold border border-red-200">
-                                                Lỗi cắt trang
+                                                        {t('references.documentManager.splitError')}
                                             </div>
                                         )}
                                     </div>
@@ -244,7 +246,7 @@ const DocumentManager = () => {
                         {expandedFileId === file.id && file.page_map.length > 0 && (
                             <div className="bg-gray-50 p-4 border-t border-[#ddd] animate-slide-up">
                                 <h5 className="text-xs font-bold text-gray-500 uppercase mb-3 flex items-center gap-2">
-                                    <Scissors size={14} /> Sơ đồ cắt trang (Splitting Map)
+                                            <Scissors size={14} /> {t('references.documentManager.splittingMap')}
                                 </h5>
                                 <div className="flex flex-wrap gap-2">
                                     {file.page_map.map((item, idx) => (
@@ -253,7 +255,7 @@ const DocumentManager = () => {
                                                 'bg-white border-blue-200 shadow-sm'
                                             }`}>
                                             <div className="flex justify-between items-center">
-                                                <span className="text-[10px] font-bold bg-gray-200 px-1.5 rounded text-gray-600">Trang {item.range}</span>
+                                                <span className="text-[10px] font-bold bg-gray-200 px-1.5 rounded text-gray-600">{t('references.documentManager.pageLabel', { range: item.range })}</span>
                                                 {item.status === 'valid' && <CheckCircle size={12} className="text-green-600" />}
                                                 {item.status === 'error' && <AlertTriangle size={12} className="text-red-600" />}
                                             </div>
@@ -270,14 +272,14 @@ const DocumentManager = () => {
                                                 <button
                                                     onClick={() => navigate(`/documents/${file.id}`)}
                                                     className="p-1.5 bg-white rounded shadow text-[#004A99] hover:text-blue-800"
-                                                    title="Xem chi tiết"
+                                                    title={t('references.documentManager.viewDetail')}
                                                 >
                                                     <Eye size={14} />
                                                 </button>
                                                 <button
                                                     onClick={() => setEditingFileId(file.id)}
                                                     className="p-1.5 bg-white rounded shadow text-gray-600 hover:text-red-600"
-                                                    title="Chỉnh sửa cắt trang"
+                                                    title={t('references.documentManager.editSplitting')}
                                                 >
                                                     <Scissors size={14} />
                                                 </button>

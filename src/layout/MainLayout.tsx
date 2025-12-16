@@ -2,21 +2,25 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Toaster } from 'react-hot-toast';
 import {
     LayoutDashboard, FileText, FileCheck, AlertOctagon,
-    Settings, LogOut, Menu, Bell, X
+    Settings, LogOut, Menu, Bell, X, Globe
 } from 'lucide-react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
+import { useI18n } from '../i18n/I18nProvider';
 
 const MainLayout = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const { t, lang, setLang } = useI18n();
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const [isNotifOpen, setIsNotifOpen] = useState(false);
+    const [isLangOpen, setIsLangOpen] = useState(false);
     const [notifications] = useState<Array<{ id: string; title: string; time: string }>>([]);
     const notifRef = useRef<HTMLDivElement | null>(null);
     const userRef = useRef<HTMLDivElement | null>(null);
-    let closeTimer: number | null = null;
+    const langRef = useRef<HTMLDivElement | null>(null);
+    // removed hover timer; using click toggles now
 
     const role = localStorage.getItem('role');
     const username = localStorage.getItem('username') || 'User';
@@ -69,6 +73,21 @@ const MainLayout = () => {
         };
     }, [isUserMenuOpen]);
 
+    useEffect(() => {
+        const handleClickOutsideLang = (e: MouseEvent) => {
+            if (!isLangOpen) return;
+            const target = e.target as Node;
+            const container = langRef.current;
+            if (container && !container.contains(target)) {
+                setIsLangOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutsideLang);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutsideLang);
+        };
+    }, [isLangOpen]);
+
     return (
         <div className="min-h-screen bg-gray-50 flex font-sans text-gray-800">
             {/* Sidebar */}
@@ -83,28 +102,28 @@ const MainLayout = () => {
                 <nav className="flex-1 py-6 space-y-1 overflow-x-hidden">
                     <NavItem
                         icon={<LayoutDashboard size={20} />}
-                        label="Dashboard"
+                        label={t('nav.dashboard')}
                         isOpen={isSidebarOpen}
                         active={isActive('/')}
                         onClick={() => navigate('/')}
                     />
                     <NavItem
                         icon={<FileText size={20} />}
-                        label="Quản lý Lô"
+                        label={t('nav.documents')}
                         isOpen={isSidebarOpen}
                         active={isActive('/documents')}
                         onClick={() => navigate('/documents')}
                     />
                     <NavItem
                         icon={<FileCheck size={20} />}
-                        label="Đối soát"
+                        label={t('nav.reconciliation')}
                         isOpen={isSidebarOpen}
                         active={isActive('/reconciliation')} // Placeholder
                         onClick={() => navigate('/reconciliation')}
                     />
                     <NavItem
                         icon={<AlertOctagon size={20} />}
-                        label="Ngoại lệ"
+                        label={t('nav.exceptions')}
                         isOpen={isSidebarOpen}
                         active={isActive('/exceptions')} // Placeholder
                         onClick={() => navigate('/exceptions')}
@@ -121,7 +140,7 @@ const MainLayout = () => {
                     <div className="mt-8 border-t border-blue-800/50 pt-4">
                         <NavItem
                             icon={<Settings size={20} />}
-                            label="Cấu hình"
+                            label={t('nav.config')}
                             isOpen={isSidebarOpen}
                             active={isActive('/config')} // Placeholder
                             onClick={() => navigate('/config')}
@@ -157,15 +176,46 @@ const MainLayout = () => {
                 {/* Header */}
                 <header className="h-16 bg-white border-b flex items-center justify-between px-6 shadow-sm z-10 border-[#ddd]">
                     <h1 className="text-xl font-bold text-gray-800">
-                        {isActive('/') && "Dashboard Tổng quan"}
-                        {isActive('/documents') && "Quản lý Lô chứng từ"}
-                        {isActive('/reconciliation') && "Đối soát giao dịch"}
-                        {isActive('/exceptions') && "Báo cáo ngoại lệ"}
-                        {isActive('/users') && "Quản lý Người dùng"}
-                        {isActive('/config') && "Cấu hình hệ thống"}
+                        {isActive('/') && t('header.title.dashboard')}
+                        {isActive('/documents') && t('header.title.documents')}
+                        {isActive('/reconciliation') && t('header.title.reconciliation')}
+                        {isActive('/exceptions') && t('header.title.exceptions')}
+                        {isActive('/users') && t('header.title.users')}
+                        {isActive('/config') && t('header.title.config')}
                     </h1>
 
                     <div className="flex items-center gap-6">
+                        {/* Language dropdown */}
+                        <div className="relative" ref={langRef}>
+                            <button
+                                type="button"
+                                onClick={() => setIsLangOpen(v => !v)}
+                                className="flex items-center gap-2 border border-gray-300 px-3 py-1.5 rounded text-gray-700 hover:bg-gray-50 cursor-pointer"
+                                aria-haspopup="true"
+                                aria-expanded={isLangOpen}
+                            >
+                                <Globe size={16} className="text-gray-600" />
+                                <span className="text-xs font-medium">{lang === 'en' ? 'GB' : 'VN'}</span>
+                                <span className="text-sm">{lang === 'en' ? 'English' : 'Tiếng Việt'}</span>
+                            </button>
+                            <div className={`absolute top-full right-0 mt-2 w-40 bg-white rounded-lg shadow-xl border border-[#ddd] z-50 overflow-hidden ${isLangOpen ? 'block' : 'hidden'}`}>
+                                <button
+                                    onClick={() => { setLang('en'); setIsLangOpen(false); }}
+                                    className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 flex items-center gap-2 cursor-pointer"
+                                >
+                                    <span className="text-xs w-8">GB</span>
+                                    <span>English</span>
+                                </button>
+                                <button
+                                    onClick={() => { setLang('vi'); setIsLangOpen(false); }}
+                                    className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 flex items-center gap-2 cursor-pointer"
+                                >
+                                    <span className="text-xs w-8">VN</span>
+                                    <span>Tiếng Việt</span>
+                                </button>
+                            </div>
+                        </div>
+                        {/* Notifications */}
                         <div className="relative" ref={notifRef}>
                             <button
                                 type="button"
@@ -217,7 +267,7 @@ const MainLayout = () => {
                             >
                                 <div className="text-right hidden sm:block">
                                     <p className="text-sm font-semibold text-gray-700">{username}</p>
-                                    <p className="text-xs text-gray-500">{isAdmin ? 'Quản trị viên' : 'Người dùng'}</p>
+                                    <p className="text-xs text-gray-500">{isAdmin ? t('common.role.admin') : t('common.role.user')}</p>
                                 </div>
                                 <div className="w-9 h-9 bg-blue-100 text-[#004A99] rounded-full flex items-center justify-center font-bold">
                                     {username[0]?.toUpperCase() || 'U'}
@@ -228,7 +278,7 @@ const MainLayout = () => {
                                     onClick={handleLogout}
                                     className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 cursor-pointer"
                                 >
-                                    <LogOut size={16} /> Đăng xuất
+                                    <LogOut size={16} /> {t('common.logout')}
                                 </button>
                             </div>
                         </div>
