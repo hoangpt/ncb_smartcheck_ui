@@ -7,7 +7,9 @@
       "user": "User"
     },
     "logout": "Log out",
-    "date": "Date"
+    "date": "Date",
+    "cancel": "Cancel",
+    "saveChanges": "Save changes"
   },
   "status": {
     "matched": "Matched",
@@ -45,6 +47,10 @@
       "last7Days": "Last 7 days",
       "thisMonth": "This month",
       "placeholder": "[Bar Chart Placeholder: Daily Processed Deals]"
+    },
+    "recent": {
+      "title": "Recent Status",
+      "updatedAgo": "Updated {minutes} minutes ago"
     },
     "stats": {
       "automationRate": "Automation Rate",
@@ -101,6 +107,17 @@
     "empty": "No exceptions to process.",
     "confirmIgnore": "Are you sure you want to ignore this error?"
   },
+  "notifications": {
+    "ariaLabel": "Notifications",
+    "empty": {
+      "title": "No notifications yet",
+      "subtitle": "New notifications will appear here."
+    }
+  },
+  "uploadModal": {
+    "title": "Upload Scan File",
+    "processingTitle": "Processing in background..."
+  },
   "references": {
     "sidebar": {
       "brand": "NCB CORE",
@@ -122,6 +139,16 @@
       "pageLabel": "Page {range}",
       "viewDetail": "View details",
       "editSplitting": "Edit splitting",
+      "editSplittingTitle": "Edit splitting - {name}",
+      "dealsList": "Deals List",
+      "editSplittingHelp": "Select pages to assign to a deal or create a new deal",
+      "allPages": "All pages",
+      "pageCount": "{count} pages",
+      "selectedPages": "Selected: {count} pages",
+      "clearSelection": "Clear selection",
+      "createNewDeal": "Create New Deal",
+      "assignToDeal": "Assign selected pages to this deal",
+      "unassigned": "Unassigned",
       "status": {
         "upload": "Uploading...",
         "scan": "Scanning & OCR...",
@@ -131,6 +158,41 @@
         "done": "Completed"
       }
     },
+        "fileDetail": {
+          "dealsList": "Deals ({count})",
+          "dataDetail": "Data Details",
+          "compareData": "Compare Data",
+          "signatures": "Signatures",
+          "validation": {
+            "matched": "Data fully matched",
+            "mismatch": "Mismatch detected"
+          },
+          "extractionConfidencePrefix": "Extraction data confidence reaches",
+          "detectedCount": "Detected: {count}",
+          "labels": {
+            "customer": "Customer",
+            "amount": "Amount",
+            "pages": "Pages",
+            "dealId": "Deal ID",
+            "transactionType": "Transaction Type",
+            "coreBanking": "Core Banking",
+            "ocrExtract": "OCR Extract",
+            "teller": "Teller",
+            "supervisor": "Supervisor"
+          },
+          "status": {
+            "valid": "Valid",
+            "lowConfidence": "Low Confidence"
+          },
+          "notFound": "File not found.",
+          "backToList": "Back to list",
+          "selectDealPrompt": "Select a Deal to view details",
+          "preview": {
+            "title": "Document Preview",
+            "viewingPages": "Viewing Pages {pages}",
+            "selectPrompt": "Select a deal to view pages"
+          }
+        },
     "stats": {
       "filesToday": "Files today",
       "totalDealsExtracted": "Total extracted deals",

@@ -76,7 +76,7 @@ const Dashboard = () => {
                 </div>
 
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-[#ddd] border-gray-200">
-                    <h3 className="font-bold text-gray-800 mb-4">Trạng thái Gần đây</h3>
+                    <h3 className="font-bold text-gray-800 mb-4">{t('dashboard.recent.title')}</h3>
                     <div className="space-y-4">
                         {[1, 2, 3, 4].map((item) => (
                             <div key={item} className="flex items-center gap-4 p-3 hover:bg-gray-50 rounded-lg transition-colors border-b last:border-0 border-dashed">
@@ -85,7 +85,7 @@ const Dashboard = () => {
                                 </div>
                                 <div className="flex-1">
                                     <p className="text-sm font-bold text-gray-700">Lô chứng từ #20251018_{item.toString().padStart(2, '0')}</p>
-                                    <p className="text-xs text-gray-500">Vừa cập nhật 15 phút trước</p>
+                                    <p className="text-xs text-gray-500">{t('dashboard.recent.updatedAgo', { minutes: 15 })}</p>
                                 </div>
                                 <span className="text-xs font-semibold bg-green-100 text-green-700 px-2 py-1 rounded-full">Completed</span>
                             </div>

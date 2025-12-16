@@ -1,6 +1,7 @@
 import { useState, useRef, type DragEvent, useEffect } from 'react';
 import { X, Upload, FileText, Trash2, CheckCircle, Check, Minimize2 } from 'lucide-react';
 import type { FileRecord } from '../types';
+import { useI18n } from '../i18n/I18nProvider';
 
 interface UploadModalProps {
     isOpen: boolean;
@@ -18,6 +19,7 @@ const STAGES = [
 ];
 
 const UploadModal = ({ isOpen, onClose, onUpload, processingFiles = [] }: UploadModalProps) => {
+    const { t } = useI18n();
     const [files, setFiles] = useState<File[]>([]);
     const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -100,7 +102,7 @@ const UploadModal = ({ isOpen, onClose, onUpload, processingFiles = [] }: Upload
                 <div className="flex items-center justify-between p-6 border-b border-gray-100">
                     <div>
                         <h2 className="text-xl font-bold text-gray-800">
-                            {isProcessing ? 'Đang xử lý hồ sơ...' : 'Upload File Scan'}
+                            {isProcessing ? t('uploadModal.processingTitle') : t('uploadModal.title')}
                         </h2>
                         <p className="text-sm text-gray-500 mt-1">
                             {isProcessing ? 'Vui lòng chờ hoặc đóng để xử lý ngầm' : 'Chọn hoặc kéo thả file cần xử lý'}

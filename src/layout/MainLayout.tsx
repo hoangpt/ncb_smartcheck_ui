@@ -16,7 +16,7 @@ const MainLayout = () => {
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const [isNotifOpen, setIsNotifOpen] = useState(false);
     const [isLangOpen, setIsLangOpen] = useState(false);
-    const [notifications] = useState<Array<{ id: string; title: string; time: string }>>([]);
+    const [notifications] = useState<Array<{ id: string; title: string; time: string; read?: boolean }>>([]);
     const notifRef = useRef<HTMLDivElement | null>(null);
     const userRef = useRef<HTMLDivElement | null>(null);
     const langRef = useRef<HTMLDivElement | null>(null);
@@ -227,13 +227,18 @@ const MainLayout = () => {
                             >
                                 <Bell size={20} className="text-gray-500 hover:text-[#004A99] cursor-pointer" />
                             </button>
-                            <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                            {(() => {
+                                const hasUnread = notifications.some(n => !n.read);
+                                return (
+                                    <span className={`absolute -top-1 -right-1 w-2 h-2 rounded-full ${hasUnread ? 'bg-red-500' : 'bg-gray-300'}`}></span>
+                                );
+                            })()}
 
                             {/* Notifications dropdown */}
                             <div
                                 className={`absolute top-full right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-[#ddd] z-50 ${isNotifOpen ? 'block' : 'hidden'}`}
                                 role="dialog"
-                                aria-label="Thông báo"
+                                aria-label={t('notifications.ariaLabel')}
                             >
                                 <div className="flex flex-col gap-3 p-2 max-h-64 overflow-auto">
                                     {notifications.length === 0 ? (
@@ -241,8 +246,8 @@ const MainLayout = () => {
                                             <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
                                                 <Bell size={18} className="text-gray-400" />
                                             </div>
-                                            <div className="text-sm font-medium text-gray-700">Chưa có thông báo</div>
-                                            <div className="text-xs text-gray-500">Thông báo mới sẽ xuất hiện tại đây.</div>
+                                            <div className="text-sm font-medium text-gray-700">{t('notifications.empty.title')}</div>
+                                            <div className="text-xs text-gray-500">{t('notifications.empty.subtitle')}</div>
                                         </div>
                                     ) : (
                                         notifications.map((n) => (
