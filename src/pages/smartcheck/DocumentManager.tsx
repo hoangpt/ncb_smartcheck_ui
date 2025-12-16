@@ -6,6 +6,7 @@ import {
 import { MOCK_FILES } from '../../data/mock';
 import type { FileRecord } from '../../types';
 import UploadModal from '../../components/UploadModal';
+import SplittingEditor from '../../components/SplittingEditor';
 
 // Timings in milliseconds
 const TIMING = {
@@ -30,6 +31,7 @@ const DocumentManager = () => {
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
     const [files, setFiles] = useState<FileRecord[]>(MOCK_FILES);
     const [activeUploadIds, setActiveUploadIds] = useState<string[]>([]);
+    const [editingFileId, setEditingFileId] = useState<string | null>(null);
 
     // Effect to run simulation loop
     useEffect(() => {
@@ -46,7 +48,7 @@ const DocumentManager = () => {
                     const elapsed = Date.now() - startTime;
 
                     let newProgress = file.process_progress;
-                    let newStatus: 'processing' | 'completed' | 'error' = 'processing';
+                    let newStatus: 'processing' | 'processed' | 'error' = 'processing';
 
                     // Update progress based on elapsed time vs total time
                     if (elapsed < TIME_POINTS.UPLOAD_DONE) {
@@ -70,7 +72,7 @@ const DocumentManager = () => {
                         newProgress = 80 + stageProgress;
                     } else {
                         newProgress = 100;
-                        newStatus = 'completed';
+                        newStatus = 'processed';
                     }
 
                     if (Math.floor(newProgress) !== Math.floor(file.process_progress) || newStatus !== file.status) {
@@ -118,6 +120,22 @@ const DocumentManager = () => {
     const handleCloseModal = () => {
         setActiveUploadIds([]); // Clear active uploads view
         setIsUploadModalOpen(false);
+    };
+
+    const handleSaveSplitting = (fileId: string, newPageMap: any[]) => {
+        setFiles(prev => prev.map(f => {
+            if (f.id === fileId) {
+                // Determine new deals count based on unique deal IDs in newPageMap
+                const uniqueDeals = new Set(newPageMap.map(p => p.deal_id).filter(id => id));
+                return {
+                    ...f,
+                    page_map: newPageMap,
+                    deals_detected: uniqueDeals.size
+                };
+            }
+            return f;
+        }));
+        setEditingFileId(null);
     };
 
     // Filter files that are currently being viewed in the modal
@@ -172,7 +190,14 @@ const DocumentManager = () => {
                         {/* File Header */}
                         <div
                             className="p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors border-[#ddd]"
-                            onClick={() => setExpandedFileId(expandedFileId === file.id ? null : file.id)}
+                            onClick={() => {
+                                if (file.status === 'processing') {
+                                    setActiveUploadIds([file.id]);
+                                    setIsUploadModalOpen(true);
+                                } else {
+                                    setExpandedFileId(expandedFileId === file.id ? null : file.id);
+                                }
+                            }}
                         >
                             <div className="flex items-center gap-4">
                                 <div className="p-2 bg-red-50 text-red-600 rounded">
@@ -243,7 +268,11 @@ const DocumentManager = () => {
                                                 <button className="p-1.5 bg-white rounded shadow text-[#004A99] hover:text-blue-800" title="Xem chi tiết">
                                                     <Eye size={14} />
                                                 </button>
-                                                <button className="p-1.5 bg-white rounded shadow text-gray-600 hover:text-red-600" title="Chỉnh sửa cắt trang">
+                                                <button
+                                                    onClick={() => setEditingFileId(file.id)}
+                                                    className="p-1.5 bg-white rounded shadow text-gray-600 hover:text-red-600"
+                                                    title="Chỉnh sửa cắt trang"
+                                                >
                                                     <Scissors size={14} />
                                                 </button>
                                             </div>
@@ -262,6 +291,14 @@ const DocumentManager = () => {
                 onUpload={handleUpload}
                 processingFiles={processingFiles}
             />
+
+            {editingFileId && (
+                <SplittingEditor
+                    file={files.find(f => f.id === editingFileId)!}
+                    onClose={() => setEditingFileId(null)}
+                    onSave={(newMap) => handleSaveSplitting(editingFileId, newMap)}
+                />
+            )}
         </div>
     );
 };
