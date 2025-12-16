@@ -10,6 +10,8 @@ const MainLayout = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+    let closeTimer: number | null = null;
     
     const role = localStorage.getItem('role');
     const username = localStorage.getItem('username') || 'User';
@@ -72,7 +74,7 @@ const MainLayout = () => {
                         active={isActive('/exceptions')} // Placeholder
                         onClick={() => navigate('/exceptions')}
                     />
-                    {isAdmin && (
+                    {/* {isAdmin && (
                         <NavItem
                             icon={<Users size={20} />}
                             label="Quản lý User"
@@ -80,7 +82,7 @@ const MainLayout = () => {
                             active={isActive('/users')}
                             onClick={() => navigate('/users')}
                         />
-                    )}
+                    )} */}
                     <div className="mt-8 border-t border-blue-800/50 pt-4">
                         <NavItem
                             icon={<Settings size={20} />}
@@ -105,7 +107,7 @@ const MainLayout = () => {
             {/* Main Content */}
             <main className="flex-1 flex flex-col h-screen overflow-hidden">
                 {/* Header */}
-                <header className="h-16 bg-white border-b flex items-center justify-between px-6 shadow-sm z-10">
+                <header className="h-16 bg-white border-b flex items-center justify-between px-6 shadow-sm z-10 border-[#ddd]">
                     <h1 className="text-xl font-bold text-gray-800">
                         {isActive('/') && "Dashboard Tổng quan"}
                         {isActive('/documents') && "Quản lý Lô chứng từ"}
@@ -120,7 +122,24 @@ const MainLayout = () => {
                             <Bell size={20} className="text-gray-500 hover:text-[#004A99] cursor-pointer" />
                             <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
                         </div>
-                        <div className="flex items-center gap-3 pl-6 border-l border-gray-200 cursor-pointer group relative">
+                        <div
+                            className="relative pl-6 border-l border-gray-200"
+                            onMouseEnter={() => {
+                                if (closeTimer) {
+                                    window.clearTimeout(closeTimer);
+                                    closeTimer = null;
+                                }
+                                setIsUserMenuOpen(true);
+                            }}
+                            onMouseLeave={() => {
+                                // Small delay to allow cursor to move into the dropdown smoothly
+                                closeTimer = window.setTimeout(() => {
+                                    setIsUserMenuOpen(false);
+                                    closeTimer = null;
+                                }, 150);
+                            }}
+                        >
+                            <div className="flex items-center gap-3 cursor-pointer">
                             <div className="text-right hidden sm:block">
                                 <p className="text-sm font-semibold text-gray-700">{username}</p>
                                 <p className="text-xs text-gray-500">{isAdmin ? 'Quản trị viên' : 'Người dùng'}</p>
@@ -128,9 +147,13 @@ const MainLayout = () => {
                             <div className="w-9 h-9 bg-blue-100 text-[#004A99] rounded-full flex items-center justify-center font-bold">
                                 {username[0]?.toUpperCase() || 'U'}
                             </div>
+                            </div>
 
-                            <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border overflow-hidden hidden group-hover:block animate-fade-in z-50">
-                                <button onClick={handleLogout} className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
+                            <div className={`absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-[#ddd] overflow-hidden z-50 ${isUserMenuOpen ? 'block' : 'hidden'}`}>
+                                <button
+                                    onClick={handleLogout}
+                                    className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 cursor-pointer"
+                                >
                                     <LogOut size={16} /> Đăng xuất
                                 </button>
                             </div>
@@ -144,6 +167,7 @@ const MainLayout = () => {
                 </div>
             </main>
         </div>
+        
     );
 };
 
@@ -151,7 +175,7 @@ const NavItem = ({ icon, label, isOpen, active = false, onClick }: { icon: React
     <button
         onClick={onClick}
         className={`w-full flex items-center gap-4 px-6 py-3.5 transition-all duration-200
-        ${active ? 'bg-blue-800 border-r-4 border-[#ED1C24] text-white' : 'text-blue-200 hover:bg-blue-800/50 hover:text-white'}
+        ${active ? 'bg-blue-800 border-r-4 border-[#28a6cf] text-white' : 'text-blue-200 hover:bg-blue-800/50 hover:text-white'}
     `}>
         <div className="flex-shrink-0">{icon}</div>
         <span className={`text-sm font-medium whitespace-nowrap transition-all duration-300 ${isOpen ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4 w-0'}`}>

@@ -24,15 +24,15 @@ const DocumentManager = () => {
 
             {/* Stats Summary */}
             <div className="grid grid-cols-3 gap-6">
-                <div className="bg-white p-4 rounded-xl shadow-sm border flex items-center gap-4">
+                <div className="bg-white p-4 rounded-xl shadow-sm border flex items-center gap-4 border-[#ddd]">
                     <div className="p-3 bg-blue-50 text-blue-700 rounded-lg"><FileText size={24} /></div>
                     <div><p className="text-sm text-gray-500">File trong ngày</p><p className="text-2xl font-bold">12</p></div>
                 </div>
-                <div className="bg-white p-4 rounded-xl shadow-sm border flex items-center gap-4">
+                <div className="bg-white p-4 rounded-xl shadow-sm border flex items-center gap-4 border-[#ddd]">
                     <div className="p-3 bg-green-50 text-green-700 rounded-lg"><Scissors size={24} /></div>
                     <div><p className="text-sm text-gray-500">Tổng Deals bóc tách</p><p className="text-2xl font-bold">186</p></div>
                 </div>
-                <div className="bg-white p-4 rounded-xl shadow-sm border flex items-center gap-4">
+                <div className="bg-white p-4 rounded-xl shadow-sm border flex items-center gap-4 border-[#ddd]">
                     <div className="p-3 bg-amber-50 text-amber-700 rounded-lg"><AlertTriangle size={24} /></div>
                     <div><p className="text-sm text-gray-500">Trang chưa nhận diện</p><p className="text-2xl font-bold">5</p></div>
                 </div>
@@ -41,10 +41,10 @@ const DocumentManager = () => {
             {/* File List */}
             <div className="space-y-4">
                 {MOCK_FILES.map((file: FileRecord) => (
-                    <div key={file.id} className="bg-white rounded-xl shadow-sm border overflow-hidden">
+                    <div key={file.id} className="bg-white rounded-xl shadow-sm overflow-hidden">
                         {/* File Header */}
                         <div
-                            className="p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors"
+                            className="p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors border-[#ddd]"
                             onClick={() => setExpandedFileId(expandedFileId === file.id ? null : file.id)}
                         >
                             <div className="flex items-center gap-4">
@@ -88,7 +88,7 @@ const DocumentManager = () => {
 
                         {/* Expanded Detail (Visual Page Map) */}
                         {expandedFileId === file.id && file.page_map.length > 0 && (
-                            <div className="bg-gray-50 p-4 border-t animate-slide-up">
+                            <div className="bg-gray-50 p-4 border-t border-[#ddd] animate-slide-up">
                                 <h5 className="text-xs font-bold text-gray-500 uppercase mb-3 flex items-center gap-2">
                                     <Scissors size={14} /> Sơ đồ cắt trang (Splitting Map)
                                 </h5>

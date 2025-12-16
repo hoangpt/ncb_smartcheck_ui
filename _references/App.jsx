@@ -195,15 +195,15 @@ const App = () => {
 
             {/* Stats Summary */}
             <div className="grid grid-cols-3 gap-6">
-                <div className="bg-white p-4 rounded-xl shadow-sm border flex items-center gap-4">
+                <div className="bg-white p-4 rounded-xl shadow-sm border flex items-center gap-4 border-[#ddd]">
                     <div className="p-3 bg-blue-50 text-blue-700 rounded-lg"><FilesIcon size={24} /></div>
                     <div><p className="text-sm text-gray-500">File trong ngày</p><p className="text-2xl font-bold">12</p></div>
                 </div>
-                <div className="bg-white p-4 rounded-xl shadow-sm border flex items-center gap-4">
+                <div className="bg-white p-4 rounded-xl shadow-sm border flex items-center gap-4 border-[#ddd]">
                     <div className="p-3 bg-green-50 text-green-700 rounded-lg"><Layers size={24} /></div>
                     <div><p className="text-sm text-gray-500">Tổng Deals bóc tách</p><p className="text-2xl font-bold">186</p></div>
                 </div>
-                <div className="bg-white p-4 rounded-xl shadow-sm border flex items-center gap-4">
+                <div className="bg-white p-4 rounded-xl shadow-sm border flex items-center gap-4 border-[#ddd]">
                     <div className="p-3 bg-amber-50 text-amber-700 rounded-lg"><AlertOctagon size={24} /></div>
                     <div><p className="text-sm text-gray-500">Trang chưa nhận diện</p><p className="text-2xl font-bold">5</p></div>
                 </div>
@@ -212,10 +212,10 @@ const App = () => {
             {/* File List */}
             <div className="space-y-4">
                 {MOCK_FILES.map(file => (
-                    <div key={file.id} className="bg-white rounded-xl shadow-sm border overflow-hidden">
+                    <div key={file.id} className="bg-white rounded-xl shadow-sm overflow-hidden">
                         {/* File Header */}
                         <div
-                            className="p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors"
+                            className="p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors border-[#ddd]"
                             onClick={() => setExpandedFileId(expandedFileId === file.id ? null : file.id)}
                         >
                             <div className="flex items-center gap-4">
@@ -329,14 +329,14 @@ const App = () => {
             </div>
 
             {/* Filter Tabs */}
-            <div className="flex gap-4 mb-6 border-b pb-1">
+            <div className="flex gap-4 mb-6 border-b pb-1 border-[#ddd]">
                 <button className="px-4 py-2 text-[#004A99] font-bold border-b-2 border-[#004A99]">Tất cả (16)</button>
                 <button className="px-4 py-2 text-gray-500 hover:text-gray-700">Chờ duyệt (4)</button>
                 <button className="px-4 py-2 text-gray-500 hover:text-gray-700">Ngoại lệ (2)</button>
                 <button className="px-4 py-2 text-gray-500 hover:text-gray-700">Đã hoàn thành (10)</button>
             </div>
 
-            <div className="bg-white rounded-lg shadow border overflow-hidden">
+            <div className="bg-white rounded-lg shadow border border-[#ddd] overflow-hidden">
                 <table className="w-full text-sm text-left">
                     <thead className="bg-gray-100 text-gray-600 font-semibold uppercase text-xs">
                         <tr>
@@ -348,7 +348,7 @@ const App = () => {
                             <th className="px-6 py-4"></th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y">
+                    <tbody className="divide-y divide-[#ddd]">
                         {MOCK_DEALS.map(deal => (
                             <tr key={deal.id} className="hover:bg-blue-50 cursor-pointer group" onClick={() => { setSelectedDeal(deal); setActiveTab('workbench'); }}>
                                 <td className="px-6 py-4 font-mono font-medium text-[#004A99]">{deal.id}</td>
@@ -377,7 +377,7 @@ const App = () => {
     const ExceptionView = () => (
         <div className="p-8 animate-fade-in">
             <h2 className="text-2xl font-bold text-gray-800 mb-6">Báo cáo ngoại lệ</h2>
-            <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
                 {/* ... (Giữ nguyên như cũ) */}
                 <div className="p-4 bg-red-50 border-b border-red-100 flex items-center gap-2 text-red-800">
                     <AlertTriangle size={20} />
@@ -393,7 +393,7 @@ const App = () => {
                             <th className="px-6 py-3 text-right">Hành động</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y">
+                    <tbody className="divide-y divide-[#ddd]">
                         {MOCK_EXCEPTIONS.map(ex => (
                             <tr key={ex.id} className="hover:bg-gray-50">
                                 <td className="px-6 py-4">
@@ -422,7 +422,7 @@ const App = () => {
             <h2 className="text-2xl font-bold text-gray-800 mb-6">Cấu hình hệ thống</h2>
             <div className="grid gap-8">
                 {/* Section 1: Quy tắc cắt trang */}
-                <div className="bg-white p-6 rounded-xl shadow-sm border">
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-[#ddd]">
                     <div className="flex items-center gap-3 mb-4 text-[#004A99]">
                         <Scissors size={24} />
                         <h3 className="font-bold text-lg">Quy tắc Cắt & Phân loại (Splitting Rules)</h3>

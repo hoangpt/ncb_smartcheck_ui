@@ -47,7 +47,7 @@ const Dashboard = () => {
 
             {/* Placeholder for Analysis */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-[#ddd] border-gray-200">
                     <h3 className="font-bold text-gray-800 mb-4 flex items-center justify-between">
                         <span>Phân tích Lưu lượng</span>
                         <select className="text-sm bg-gray-50 border rounded px-2 py-1 outline-none text-gray-500">
@@ -60,7 +60,7 @@ const Dashboard = () => {
                     </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-[#ddd] border-gray-200">
                     <h3 className="font-bold text-gray-800 mb-4">Trạng thái Gần đây</h3>
                     <div className="space-y-4">
                         {[1, 2, 3, 4].map((item) => (
@@ -84,7 +84,7 @@ const Dashboard = () => {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const StatCard = ({ title, value, trend, detail, icon, color }: any) => (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+    <div className="bg-white p-6 rounded-xl shadow-sm border border-[#ddd] border-gray-200 hover:shadow-md transition-shadow">
         <div className="flex justify-between items-start mb-4">
             <div>
                 <p className="text-sm font-medium text-gray-500">{title}</p>

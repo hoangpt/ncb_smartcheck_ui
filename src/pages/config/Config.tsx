@@ -6,7 +6,7 @@ const Config = () => {
             <h2 className="text-2xl font-bold text-gray-800 mb-6">Cấu hình hệ thống</h2>
             <div className="grid gap-8">
                 {/* Section 1: Quy tắc cắt trang */}
-                <div className="bg-white p-6 rounded-xl shadow-sm border">
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-[#ddd]">
                     <div className="flex items-center gap-3 mb-4 text-[#004A99]">
                         <Scissors size={24} />
                         <h3 className="font-bold text-lg">Quy tắc Cắt & Phân loại (Splitting Rules)</h3>
@@ -25,7 +25,7 @@ const Config = () => {
                 </div>
 
                 {/* Section 2: System Settings (Placeholder) */}
-                <div className="bg-white p-6 rounded-xl shadow-sm border">
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-[#ddd]">
                     <div className="flex items-center gap-3 mb-4 text-[#004A99]">
                         <Settings size={24} />
                         <h3 className="font-bold text-lg">Tham số hệ thống</h3>
@@ -45,7 +45,7 @@ const Config = () => {
                 </div>
 
                 {/* Section 3: Data Management (Placeholder) */}
-                <div className="bg-white p-6 rounded-xl shadow-sm border opacity-70">
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-[#ddd] opacity-70">
                     <div className="flex items-center gap-3 mb-4 text-gray-600">
                         <Database size={24} />
                         <h3 className="font-bold text-lg">Quản lý dữ liệu (Coming Soon)</h3>
