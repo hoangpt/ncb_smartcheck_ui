@@ -1,11 +1,13 @@
 import { useNavigate } from 'react-router-dom';
 import { Filter, Download } from 'lucide-react';
+import { toastInfo } from '../../services/toast';
 import { MOCK_DEALS } from '../../data/mock';
 import type { Deal } from '../../types';
 import StatusBadge from '../../components/StatusBadge';
 
 const Reconciliation = () => {
     const navigate = useNavigate();
+    // Replaced local toast implementation with sonner
 
     return (
         <div className="p-8 animate-fade-in">
@@ -18,7 +20,10 @@ const Reconciliation = () => {
                     <button className="px-3 py-2 bg-white border rounded-lg text-gray-600 shadow-sm hover:bg-gray-50">
                         <Filter size={18} />
                     </button>
-                    <button className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2 text-sm font-medium shadow-sm">
+                    <button
+                        onClick={() => toastInfo('Coming soon')}
+                        className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2 text-sm font-medium shadow-sm"
+                    >
                         <Download size={18} /> Xuất Excel
                     </button>
                 </div>
@@ -72,6 +77,8 @@ const Reconciliation = () => {
                     </tbody>
                 </table>
             </div>
+
+            {/* Toast is rendered globally via <Toaster /> */}
         </div>
     );
 };
