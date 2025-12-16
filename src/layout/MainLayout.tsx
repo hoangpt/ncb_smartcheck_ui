@@ -7,6 +7,7 @@ import {
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
 import { useI18n } from '../i18n/I18nProvider';
+import ncbLogo from '../assets/ncb_v.png';
 
 const MainLayout = () => {
     const navigate = useNavigate();
@@ -73,7 +74,7 @@ const MainLayout = () => {
             document.removeEventListener('mousedown', handleClickOutsideUser);
         };
     }, [isUserMenuOpen]);
-    
+
     useEffect(() => {
         const handleClickOutsideLang = (e: MouseEvent) => {
             if (!isLangOpen) return;
@@ -95,7 +96,7 @@ const MainLayout = () => {
             <aside className={`bg-[#003366] text-white transition-all duration-300 flex flex-col z-20 ${isSidebarOpen ? 'w-64' : 'w-20'}`}>
                 <div className="h-16 flex items-center px-4 border-b border-blue-800/50">
                     <div className="flex items-center gap-3 overflow-hidden">
-                        <div className="w-8 h-8 bg-white rounded flex-shrink-0 flex items-center justify-center text-[#004A99] font-bold text-xs">NCB</div>
+                        <img src={ncbLogo} alt="NCB" className="w-auto h-8 bg-white rounded p-1" />
                         <span className={`font-bold text-lg whitespace-nowrap transition-opacity ${isSidebarOpen ? 'opacity-100' : 'opacity-0'}`}>Smart Check</span>
                     </div>
                 </div>
