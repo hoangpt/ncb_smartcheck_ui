@@ -16,7 +16,7 @@ const MainLayout = () => {
     const [notifications] = useState<Array<{ id: string; title: string; time: string }>>([]);
     const notifRef = useRef<HTMLDivElement | null>(null);
     const userRef = useRef<HTMLDivElement | null>(null);
-    let closeTimer: number | null = null;
+    const closeTimerRef = useRef<number | null>(null);
 
     const role = localStorage.getItem('role');
     const username = localStorage.getItem('username') || 'User';
@@ -54,20 +54,6 @@ const MainLayout = () => {
         };
     }, [isNotifOpen]);
 
-    useEffect(() => {
-        const handleClickOutsideUser = (e: MouseEvent) => {
-            if (!isUserMenuOpen) return;
-            const target = e.target as Node;
-            const container = userRef.current;
-            if (container && !container.contains(target)) {
-                setIsUserMenuOpen(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutsideUser);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutsideUser);
-        };
-    }, [isUserMenuOpen]);
 
     return (
         <div className="min-h-screen bg-gray-50 flex font-sans text-gray-800">
@@ -207,6 +193,20 @@ const MainLayout = () => {
                         <div
                             className="relative pl-6 border-l border-gray-200"
                             ref={userRef}
+                            onMouseEnter={() => {
+                                if (closeTimerRef.current) {
+                                    window.clearTimeout(closeTimerRef.current);
+                                    closeTimerRef.current = null;
+                                }
+                                setIsUserMenuOpen(true);
+                            }}
+                            onMouseLeave={() => {
+                                // Small delay to allow cursor to move into the dropdown smoothly
+                                closeTimerRef.current = window.setTimeout(() => {
+                                    setIsUserMenuOpen(false);
+                                    closeTimerRef.current = null;
+                                }, 150);
+                            }}
                         >
                             <button
                                 type="button"
