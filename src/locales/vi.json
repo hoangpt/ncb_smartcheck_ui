@@ -7,7 +7,13 @@
       "user": "Người dùng"
     },
     "logout": "Đăng xuất",
-    "date": "Ngày"
+    "date": "Ngày",
+    "cancel": "Hủy",
+    "saveChanges": "Lưu thay đổi"
+  },
+  "uploadModal": {
+    "title": "Upload File Scan",
+    "processingTitle": "Đang xử lý hồ sơ..."
   },
   "status": {
     "matched": "Khớp đúng",
@@ -52,6 +58,10 @@
       "modelVersion": "Phiên bản {{version}}",
       "riskAlerts": "Cảnh báo Rủi ro",
       "needsImmediateAttention": "Cần xử lý ngay"
+    },
+    "recent": {
+      "title": "Trạng thái Gần đây",
+      "updatedAgo": "Vừa cập nhật {minutes} phút trước"
     }    
   },
   "login": {
@@ -101,6 +111,13 @@
     "empty": "Không có ngoại lệ nào cần xử lý.",
     "confirmIgnore": "Bạn có chắc chắn muốn bỏ qua lỗi này?"
   },
+  "notifications": {
+    "ariaLabel": "Thông báo",
+    "empty": {
+      "title": "Chưa có thông báo",
+      "subtitle": "Thông báo mới sẽ xuất hiện tại đây."
+    }
+  },
   "references": {
     "sidebar": {
       "brand": "NCB CORE",
@@ -122,6 +139,16 @@
       "pageLabel": "Trang {range}",
       "viewDetail": "Xem chi tiết",
       "editSplitting": "Chỉnh sửa cắt trang",
+      "editSplittingTitle": "Chỉnh sửa cắt trang - {name}",
+      "dealsList": "Danh sách Deal",
+      "editSplittingHelp": "Chọn các trang và gán vào Deal hoặc tách Deal mới",
+      "allPages": "Tất cả trang",
+      "pageCount": "{count} trang",
+      "selectedPages": "Đã chọn: {count} trang",
+      "clearSelection": "Bỏ chọn",
+      "createNewDeal": "Tạo Deal Mới",
+      "assignToDeal": "Chuyển trang đã chọn vào Deal này",
+      "unassigned": "Chưa gán",
       "status": {
         "upload": "Đang upload...",
         "scan": "Đang scan & OCR...",
@@ -131,6 +158,41 @@
         "done": "Hoàn thành"
       }
     },
+        "fileDetail": {
+          "dealsList": "Danh sách Deal ({count})",
+          "dataDetail": "Chi tiết dữ liệu",
+          "compareData": "So sánh dữ liệu",
+          "signatures": "Chữ ký",
+          "validation": {
+            "matched": "Dữ liệu khớp hoàn toàn",
+            "mismatch": "Phát hiện sai lệch"
+          },
+          "extractionConfidencePrefix": "Độ tin cậy của dữ liệu trích xuất đạt",
+          "detectedCount": "Đã nhận diện: {count}",
+          "labels": {
+            "customer": "Khách hàng",
+            "amount": "Số tiền",
+            "pages": "Trang",
+            "dealId": "Mã Deal",
+            "transactionType": "Loại giao dịch",
+            "coreBanking": "Core Banking",
+            "ocrExtract": "OCR Trích xuất",
+            "teller": "Giao dịch viên",
+            "supervisor": "Kiểm soát viên"
+          },
+          "status": {
+            "valid": "Hợp lệ",
+            "lowConfidence": "Độ tin cậy thấp"
+          },
+          "notFound": "Không tìm thấy file.",
+          "backToList": "Quay lại danh sách",
+          "selectDealPrompt": "Chọn một Deal để xem chi tiết",
+          "preview": {
+            "title": "Xem trước tài liệu",
+            "viewingPages": "Đang xem Trang {pages}",
+            "selectPrompt": "Chọn một Deal để xem trang"
+          }
+        },
     "stats": {
       "filesToday": "File trong ngày",
       "totalDealsExtracted": "Tổng Deals bóc tách",

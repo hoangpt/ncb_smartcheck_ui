@@ -260,7 +260,7 @@ const DocumentManager = () => {
                                     }}
                                     className="opacity-0 group-hover:opacity-100 transition-opacity bg-white text-[#004A99] border border-[#004A99] px-3 py-1.5 rounded text-xs font-bold flex items-center gap-2 hover:bg-blue-50"
                                 >
-                                    <Eye size={14} /> Xem chi tiết
+                                    <Eye size={14} /> {t('references.documentManager.viewDetail')}
                                 </button>
 
                                 {file.status === 'processing' ? (

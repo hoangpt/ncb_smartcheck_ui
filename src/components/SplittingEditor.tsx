@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Save, Plus, Scissors, Check, ArrowRight } from 'lucide-react';
 import type { FileRecord, PageMapItem } from '../types';
+import { useI18n } from '../i18n/I18nProvider';
 
 interface SplittingEditorProps {
     file: FileRecord;
@@ -16,6 +17,7 @@ interface PageNode {
 }
 
 const SplittingEditor = ({ file, onSave, onClose }: SplittingEditorProps) => {
+    const { t } = useI18n();
     // Flatten the page map into individual pages for easier editing
     const initialPages = useMemo(() => {
         const pages: PageNode[] = [];
@@ -133,19 +135,19 @@ const SplittingEditor = ({ file, onSave, onClose }: SplittingEditorProps) => {
                         <Scissors size={24} />
                     </div>
                     <div>
-                        <h2 className="text-xl font-bold text-gray-800">Chỉnh sửa cắt trang - {file.name}</h2>
-                        <p className="text-sm text-gray-500">Chọn các trang và gán vào Deal hoặc tách Deal mới</p>
+                        <h2 className="text-xl font-bold text-gray-800">{t('references.documentManager.editSplittingTitle', { name: file.name })}</h2>
+                        <p className="text-sm text-gray-500">{t('references.documentManager.editSplittingHelp')}</p>
                     </div>
                 </div>
                 <div className="flex gap-3">
                     <button onClick={onClose} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
-                        Hủy
+                        {t('common.cancel')}
                     </button>
                     <button
                         onClick={handleSave}
                         className="px-6 py-2 bg-[#004A99] text-white rounded-lg hover:bg-blue-800 shadow-lg flex items-center gap-2"
                     >
-                        <Save size={18} /> Lưu thay đổi
+                        <Save size={18} /> {t('common.saveChanges')}
                     </button>
                 </div>
             </div>
@@ -153,13 +155,13 @@ const SplittingEditor = ({ file, onSave, onClose }: SplittingEditorProps) => {
             <div className="flex-1 flex overflow-hidden">
                 {/* Sidebar - Deals List */}
                 <div className="w-80 bg-white border-r border-gray-200 overflow-y-auto p-4 flex flex-col gap-2">
-                    <h3 className="text-sm font-bold text-gray-400 uppercase mb-2">Danh sách Deal</h3>
+                    <h3 className="text-sm font-bold text-gray-400 uppercase mb-2">{t('references.documentManager.dealsList')}</h3>
 
                     <button
                         onClick={() => setActiveDealFilter(null)}
                         className={`text-left p-3 rounded-lg border transition-all ${activeDealFilter === null ? 'bg-blue-50 border-blue-200 text-[#004A99]' : 'border-transparent hover:bg-gray-50'}`}
                     >
-                        <span className="font-bold">Tất cả trang</span>
+                        <span className="font-bold">{t('references.documentManager.allPages')}</span>
                         <span className="float-right text-xs bg-gray-200 px-2 py-0.5 rounded-full">{pages.length}</span>
                     </button>
 
@@ -172,14 +174,14 @@ const SplittingEditor = ({ file, onSave, onClose }: SplittingEditorProps) => {
                                     className={`w-full text-left p-3 rounded-lg border transition-all ${activeDealFilter === dealId ? 'bg-blue-50 border-blue-200 text-[#004A99]' : 'bg-gray-50 border-gray-100 hover:border-blue-200'}`}
                                 >
                                     <div className="font-bold truncate">{dealId}</div>
-                                    <div className="text-xs text-gray-400 mt-1">{pageCount} trang</div>
+                                    <div className="text-xs text-gray-400 mt-1">{t('references.documentManager.pageCount', { count: pageCount })}</div>
                                 </button>
                                 {/* Quick Assign Button (Only visible if selection exists) */}
                                 {selectedPages.length > 0 && activeDealFilter !== dealId && (
                                     <button
                                         onClick={(e) => { e.stopPropagation(); handleAssignToDeal(dealId); }}
                                         className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-[#004A99] text-white rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
-                                        title="Chuyển trang đã chọn vào Deal này"
+                                        title={t('references.documentManager.assignToDeal')}
                                     >
                                         <ArrowRight size={14} />
                                     </button>
@@ -194,9 +196,9 @@ const SplittingEditor = ({ file, onSave, onClose }: SplittingEditorProps) => {
                     {/* Action Bar */}
                     <div className="mb-6 flex items-center justify-between sticky top-0 z-10 bg-gray-100/95 backdrop-blur py-2">
                         <div className="flex items-center gap-2">
-                            <span className="font-bold text-gray-700">Đã chọn: {selectedPages.length} trang</span>
+                            <span className="font-bold text-gray-700">{t('references.documentManager.selectedPages', { count: selectedPages.length })}</span>
                             {selectedPages.length > 0 && (
-                                <button onClick={() => setSelectedPages([])} className="text-xs text-red-500 hover:underline">Bỏ chọn</button>
+                                <button onClick={() => setSelectedPages([])} className="text-xs text-red-500 hover:underline cursor-pointer">{t('references.documentManager.clearSelection')}</button>
                             )}
                         </div>
                         <div className="flex gap-2">
@@ -205,7 +207,7 @@ const SplittingEditor = ({ file, onSave, onClose }: SplittingEditorProps) => {
                                 disabled={selectedPages.length === 0}
                                 className="px-4 py-2 bg-white border border-blue-200 text-[#004A99] rounded-lg shadow-sm hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                             >
-                                <Plus size={16} /> Tạo Deal Mới
+                                <Plus size={16} /> {t('references.documentManager.createNewDeal')}
                             </button>
                         </div>
                     </div>
@@ -233,7 +235,7 @@ const SplittingEditor = ({ file, onSave, onClose }: SplittingEditorProps) => {
 
                                     <div className={`text-[10px] px-2 py-1 rounded w-full text-center truncate ${isOrphan ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-[#004A99]'
                                         }`}>
-                                        {page.dealId === 'Unassigned' ? 'Chưa gán' : page.dealId}
+                                        {page.dealId === 'Unassigned' ? t('references.documentManager.unassigned') : page.dealId}
                                     </div>
 
                                     {isSelected && (

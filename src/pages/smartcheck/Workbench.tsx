@@ -6,10 +6,12 @@ import {
 import { MOCK_DEALS } from '../../data/mock';
 import type { Deal } from '../../types';
 import StatusBadge from '../../components/StatusBadge';
+import { useI18n } from '../../i18n/I18nProvider';
 
 const Workbench = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { t } = useI18n();
 
     // Find the deal from mock data
     const selectedDeal = MOCK_DEALS.find((deal: Deal) => deal.id === id);
@@ -126,14 +128,14 @@ const Workbench = () => {
                 <div className="w-1/2 flex flex-col bg-white overflow-auto custom-scrollbar">
                     <div className="p-6">
                         <h3 className="text-[#004A99] font-bold mb-4 flex items-center gap-2 border-b pb-2">
-                            <LayoutDashboard size={18} /> Thông tin giao dịch
+                            <LayoutDashboard size={18} /> {t('references.workbench.transactionInfo')}
                         </h3>
 
                         {/* Comparison Form */}
                         <div className="grid grid-cols-2 gap-x-8 gap-y-6">
                             {/* Header Row */}
-                            <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-[-10px]">Dữ liệu trích xuất (OCR)</div>
-                            <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-[-10px]">Dữ liệu hệ thống (Core)</div>
+                            <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-[-10px]">{t('references.workbench.ocrData')}</div>
+                            <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-[-10px]">{t('references.workbench.coreData')}</div>
 
                             {/* Deal ID */}
                             <div className="bg-gray-50 p-3 rounded border border-gray-200">
@@ -150,7 +152,7 @@ const Workbench = () => {
 
                             {/* Amount - The critical part */}
                             <div className={`p-3 rounded border ${isAmountMismatch ? 'bg-red-50 border-red-200' : 'bg-gray-50 border-gray-200'}`}>
-                                <label className="text-xs text-gray-500 block mb-1">Số tiền (VND)</label>
+                                <label className="text-xs text-gray-500 block mb-1">{t('references.workbench.amountVND')}</label>
                                 <input
                                     type="text"
                                     className={`w-full bg-transparent font-mono font-bold text-lg outline-none ${isAmountMismatch ? 'text-red-600' : 'text-gray-800'}`}
@@ -160,7 +162,7 @@ const Workbench = () => {
                             </div>
                             <div className={`p-3 rounded border flex justify-between items-center ${isAmountMismatch ? 'bg-red-50 border-red-200' : 'bg-blue-50 border-blue-100'}`}>
                                 <div>
-                                    <label className="text-xs text-blue-500 block mb-1">System Amount</label>
+                                    <label className="text-xs text-blue-500 block mb-1">{t('references.workbench.systemAmount')}</label>
                                     <div className={`font-mono font-bold text-lg ${isAmountMismatch ? 'text-red-700' : 'text-blue-900'}`}>
                                         {new Intl.NumberFormat('vi-VN').format(selectedDeal.amount_system)}
                                     </div>
@@ -176,7 +178,7 @@ const Workbench = () => {
 
                             {/* Customer */}
                             <div className="bg-gray-50 p-3 rounded border border-gray-200 col-span-2">
-                                <label className="text-xs text-gray-500 block mb-1">Khách hàng / Đơn vị</label>
+                                <label className="text-xs text-gray-500 block mb-1">{t('references.workbench.customerUnit')}</label>
                                 <div className="font-medium">{selectedDeal.customer}</div>
                             </div>
                         </div>
@@ -185,7 +187,7 @@ const Workbench = () => {
 
                         {/* Signature Verification Section */}
                         <h3 className="text-[#004A99] font-bold mb-4 flex items-center gap-2 border-b pb-2">
-                            <Scissors size={18} /> Đối chiếu chữ ký
+                            <Scissors size={18} /> {t('references.workbench.signatureMatch')}
                         </h3>
 
                         <div className="space-y-4">
@@ -252,13 +254,13 @@ const Workbench = () => {
 
                     {/* Action Footer */}
                     <div className="mt-auto p-4 border-t bg-gray-50 flex justify-between items-center sticky bottom-0 z-10">
-                        <button className="text-gray-500 hover:text-gray-700 text-sm font-medium hover:underline">Báo cáo sai sót</button>
+                        <button className="text-gray-500 hover:text-gray-700 text-sm font-medium hover:underline">{t('references.workbench.reportIssue')}</button>
                         <div className="flex gap-3">
                             <button className="px-4 py-2 bg-white border text-gray-700 rounded-lg shadow-sm hover:bg-gray-50 text-sm font-medium transition-colors" onClick={() => navigate('/reconciliation')}>
-                                Bỏ qua
+                                {t('references.workbench.skip')}
                             </button>
                             <button className="px-6 py-2 bg-[#ED1C24] text-white rounded-lg shadow hover:bg-red-700 text-sm font-medium flex items-center gap-2 transition-colors active:scale-95" onClick={() => navigate('/reconciliation')}>
-                                <Save size={16} /> Lưu & Tiếp tục
+                                <Save size={16} /> {t('references.workbench.saveAndContinue')}
                             </button>
                         </div>
                     </div>
