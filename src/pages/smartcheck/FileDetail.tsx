@@ -2,7 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import {
     ArrowLeft, FileText, CheckCircle, AlertTriangle,
-    Calendar, User, CreditCard, Layers, Eye
+    Calendar, User, Layers
 } from 'lucide-react';
 import { MOCK_FILES, MOCK_DEALS } from '../../data/mock';
 import type { Deal } from '../../types';

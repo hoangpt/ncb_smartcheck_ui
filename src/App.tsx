@@ -5,6 +5,7 @@ import DocumentManager from './pages/smartcheck/DocumentManager';
 import Reconciliation from './pages/smartcheck/Reconciliation';
 import Workbench from './pages/smartcheck/Workbench';
 import Exceptions from './pages/smartcheck/Exceptions';
+import FileDetail from './pages/smartcheck/FileDetail';
 import Config from './pages/config/Config';
 import MainLayout from './layout/MainLayout';
 
@@ -41,6 +42,7 @@ function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/documents" element={<DocumentManager />} />
+            <Route path="/documents/:id" element={<FileDetail />} />
             <Route path="/reconciliation" element={<Reconciliation />} />
             <Route path="/reconciliation/:id" element={<Workbench />} />
             <Route path="/exceptions" element={<Exceptions />} />

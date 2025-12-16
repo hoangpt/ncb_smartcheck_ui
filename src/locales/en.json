@@ -6,7 +6,8 @@
       "admin": "Administrator",
       "user": "User"
     },
-    "logout": "Log out"
+    "logout": "Log out",
+    "date": "Date"
   },
   "status": {
     "matched": "Matched",

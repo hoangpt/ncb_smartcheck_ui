@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-    Upload, FileText, ChevronDown, ChevronUp,
+    Upload, FileText,
     Scissors, CheckCircle, AlertTriangle, Eye
 } from 'lucide-react';
 import { MOCK_FILES } from '../../data/mock';
 import type { FileRecord } from '../../types';
 import UploadModal from '../../components/UploadModal';
 import SplittingEditor from '../../components/SplittingEditor';
+import { format } from 'date-fns';
 import { useI18n } from '../../i18n/I18nProvider';
 
 // Timings in milliseconds
@@ -31,11 +32,11 @@ const TIME_POINTS = {
 const DocumentManager = () => {
     const navigate = useNavigate();
     const { t } = useI18n();
-    const [expandedFileId, setExpandedFileId] = useState<string | null>("FILE_20251018_01");
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
     const [files, setFiles] = useState<FileRecord[]>(MOCK_FILES);
     const [activeUploadIds, setActiveUploadIds] = useState<string[]>([]);
     const [editingFileId, setEditingFileId] = useState<string | null>(null);
+    const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
 
     // Effect to run simulation loop
     useEffect(() => {
@@ -106,7 +107,8 @@ const DocumentManager = () => {
             return {
                 id,
                 name: file.name,
-                uploadTime: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+                // Format: dd/MM/yyyy HH:mm
+                uploadTime: format(new Date(), 'dd/MM/yyyy HH:mm'),
                 uploadedBy: "Admin User",
                 status: 'processing',
                 process_progress: 0,
@@ -142,10 +144,41 @@ const DocumentManager = () => {
         setEditingFileId(null);
     };
 
-    // Filter files that are currently being viewed in the modal
+    // Filter files based on selectedDate
+    // Mock data format: "18/10/2025 08:30" (dd/MM/yyyy HH:mm)
+    // selectedDate format: "yyyy-MM-dd"
+    const filteredFiles = files.filter(f => {
+        if (!selectedDate) return true;
+        const [day, month, year] = f.uploadTime.split(' ')[0].split('/');
+        // Create date string in yyyy-MM-dd for comparison
+        const fileDate = `${year}-${month}-${day}`;
+        return fileDate === selectedDate;
+    });
+
+    // Filter files that are currently being viewed in the modal (from the full list or filtered list? 
+    // Usually modal runs on activeUploadIds, independent of view filter, 
+    // but here we pass 'processingFiles' to modal. Let's keep using 'files' (all files) for modal consistency
+    // so user can still see upload progress even if they filtered away the date.
     const processingFiles = files.filter(f => activeUploadIds.includes(f.id));
 
-    // Helper to get status text
+    // Stats
+    const totalFiles = filteredFiles.length;
+
+    // Note: The original hardcoded value was 186. 
+    // Now we sum up `deals_detected` from the filtered list.
+    // For processing files, deals_detected is random but exists.
+    const totalDeals = filteredFiles.reduce((sum, file) => sum + (file.deals_detected || 0), 0);
+
+    // Count pages with errors or specific conditions if needed. 
+    // The previous hardcoded "5" was "Trang chưa nhận diện".
+    // We can count items in page_map that are 'Orphan' or 'error' status? 
+    // Let's assume "Trang chưa nhận diện" maps to "Orphan" or "error" in splits.
+    const totalUnidentified = filteredFiles.reduce((sum, file) => {
+        if (!file.page_map) return sum;
+        return sum + file.page_map.filter(p => p.type === 'Orphan').length;
+    }, 0);
+
+    // Helper to get localized status text
     const getStatusText = (progress: number) => {
         if (progress < 10) return t('references.documentManager.status.upload');
         if (progress < 30) return t('references.documentManager.status.scan');
@@ -162,46 +195,49 @@ const DocumentManager = () => {
                     <h2 className="text-2xl font-bold text-gray-800">{t('references.documentManager.title')}</h2>
                     <p className="text-gray-500 mt-1">{t('references.documentManager.subtitle')}</p>
                 </div>
-                <button
-                    onClick={() => setIsUploadModalOpen(true)}
-                    className="bg-[#004A99] hover:bg-blue-800 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-lg active:scale-95 transition-transform"
-                >
-                    <Upload size={18} />
-                    <span>{t('references.documentManager.uploadNew')}</span>
-                </button>
+                <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-gray-300 shadow-sm">
+                        <span className="text-sm text-gray-600">{t('common.date')}:</span>
+                        <input
+                            type="date"
+                            value={selectedDate}
+                            onChange={(e) => setSelectedDate(e.target.value)}
+                            className="outline-none text-sm text-gray-800 bg-transparent"
+                        />
+                    </div>
+                    <button
+                        onClick={() => setIsUploadModalOpen(true)}
+                        className="bg-[#004A99] hover:bg-blue-800 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-lg active:scale-95 transition-transform"
+                    >
+                        <Upload size={18} />
+                        <span>{t('references.documentManager.uploadNew')}</span>
+                    </button>
+                </div>
             </div>
 
             {/* Stats Summary */}
             <div className="grid grid-cols-3 gap-6">
                 <div className="bg-white p-4 rounded-xl shadow-sm border flex items-center gap-4 border-[#ddd]">
                     <div className="p-3 bg-blue-50 text-blue-700 rounded-lg"><FileText size={24} /></div>
-                    <div><p className="text-sm text-gray-500">{t('references.stats.filesToday')}</p><p className="text-2xl font-bold">{files.length}</p></div>
+                    <div><p className="text-sm text-gray-500">{t('references.stats.filesToday')}</p><p className="text-2xl font-bold">{totalFiles}</p></div>
                 </div>
                 <div className="bg-white p-4 rounded-xl shadow-sm border flex items-center gap-4 border-[#ddd]">
                     <div className="p-3 bg-green-50 text-green-700 rounded-lg"><Scissors size={24} /></div>
-                    <div><p className="text-sm text-gray-500">{t('references.stats.totalDealsExtracted')}</p><p className="text-2xl font-bold">186</p></div>
+                    <div><p className="text-sm text-gray-500">{t('references.stats.totalDealsExtracted')}</p><p className="text-2xl font-bold">{totalDeals}</p></div>
                 </div>
                 <div className="bg-white p-4 rounded-xl shadow-sm border flex items-center gap-4 border-[#ddd]">
                     <div className="p-3 bg-amber-50 text-amber-700 rounded-lg"><AlertTriangle size={24} /></div>
-                    <div><p className="text-sm text-gray-500">{t('references.stats.unrecognizedPages')}</p><p className="text-2xl font-bold">5</p></div>
+                    <div><p className="text-sm text-gray-500">{t('references.stats.unrecognizedPages')}</p><p className="text-2xl font-bold">{totalUnidentified}</p></div>
                 </div>
             </div>
 
             {/* File List */}
             <div className="space-y-4">
-                {files.map((file: FileRecord) => (
-                    <div key={file.id} className="bg-white rounded-xl shadow-sm overflow-hidden">
+                {filteredFiles.map((file: FileRecord) => (
+                    <div key={file.id} className="bg-white rounded-xl shadow-sm overflow-hidden group hover:shadow-md transition-shadow">
                         {/* File Header */}
                         <div
-                            className="p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors border-[#ddd]"
-                            onClick={() => {
-                                if (file.status === 'processing') {
-                                    setActiveUploadIds([file.id]);
-                                    setIsUploadModalOpen(true);
-                                } else {
-                                    setExpandedFileId(expandedFileId === file.id ? null : file.id);
-                                }
-                            }}
+                            className="p-4 flex items-center justify-between border-b border-[#ddd]"
                         >
                             <div className="flex items-center gap-4">
                                 <div className="p-2 bg-red-50 text-red-600 rounded">
@@ -216,6 +252,17 @@ const DocumentManager = () => {
                             </div>
 
                             <div className="flex items-center gap-6">
+                                {/* Hover Action: View Details (Right Side) */}
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        navigate(`/documents/${file.id}`);
+                                    }}
+                                    className="opacity-0 group-hover:opacity-100 transition-opacity bg-white text-[#004A99] border border-[#004A99] px-3 py-1.5 rounded text-xs font-bold flex items-center gap-2 hover:bg-blue-50"
+                                >
+                                    <Eye size={14} /> Xem chi tiết
+                                </button>
+
                                 {file.status === 'processing' ? (
                                     <div className="w-48">
                                         <div className="flex justify-between text-xs mb-1">
@@ -233,55 +280,55 @@ const DocumentManager = () => {
                                         </div>
                                         {file.page_map.some(p => p.status === 'error') && (
                                             <div className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold border border-red-200">
-                                                        {t('references.documentManager.splitError')}
+                                                {t('references.documentManager.splitError')}
                                             </div>
                                         )}
                                     </div>
                                 )}
-                                {expandedFileId === file.id ? <ChevronUp size={20} className="text-gray-400" /> : <ChevronDown size={20} className="text-gray-400" />}
+                                {/* Arrows Removed */}
                             </div>
                         </div>
 
-                        {/* Expanded Detail (Visual Page Map) */}
-                        {expandedFileId === file.id && file.page_map.length > 0 && (
-                            <div className="bg-gray-50 p-4 border-t border-[#ddd] animate-slide-up">
+                        {/* Always Visible Detail (Visual Page Map) */}
+                        {file.page_map.length > 0 && (
+                            <div className="bg-gray-50 p-4 border-t border-[#ddd]">
                                 <h5 className="text-xs font-bold text-gray-500 uppercase mb-3 flex items-center gap-2">
-                                            <Scissors size={14} /> {t('references.documentManager.splittingMap')}
+                                    <Scissors size={14} /> {t('references.documentManager.splittingMap')}
                                 </h5>
-                                <div className="flex flex-wrap gap-2">
+                                <div className="grid grid-cols-8 gap-2">
                                     {file.page_map.map((item, idx) => (
-                                        <div key={idx} className={`relative group p-3 rounded border w-40 flex-shrink-0 flex flex-col gap-2 transition-all hover:shadow-md ${item.status === 'ignored' ? 'bg-gray-200 border-gray-300 opacity-60' :
+                                        <div key={idx} className={`relative group p-2 rounded border flex flex-col gap-1 transition-all hover:shadow-md ${item.status === 'ignored' ? 'bg-gray-200 border-gray-300 opacity-60' :
                                             item.status === 'error' ? 'bg-red-50 border-red-300' :
                                                 'bg-white border-blue-200 shadow-sm'
                                             }`}>
                                             <div className="flex justify-between items-center">
                                                 <span className="text-[10px] font-bold bg-gray-200 px-1.5 rounded text-gray-600">{t('references.documentManager.pageLabel', { range: item.range })}</span>
-                                                {item.status === 'valid' && <CheckCircle size={12} className="text-green-600" />}
-                                                {item.status === 'error' && <AlertTriangle size={12} className="text-red-600" />}
+                                                {item.status === 'valid' && <CheckCircle size={10} className="text-green-600" />}
+                                                {item.status === 'error' && <AlertTriangle size={10} className="text-red-600" />}
                                             </div>
-                                            <div className="text-xs font-medium truncate" title={item.deal_id}>
+                                            <div className="text-[10px] font-medium truncate text-gray-700" title={item.deal_id}>
                                                 {item.deal_id}
                                             </div>
-                                            <div className={`text-[10px] px-2 py-0.5 rounded-full w-fit ${item.type === 'Orphan' ? 'bg-red-100 text-red-700' : 'bg-blue-50 text-blue-700'
+                                            <div className={`text-[9px] px-1.5 py-0.5 rounded-full w-fit ${item.type === 'Orphan' ? 'bg-red-100 text-red-700' : 'bg-blue-50 text-blue-700'
                                                 }`}>
                                                 {item.type}
                                             </div>
 
                                             {/* Hover Actions */}
-                                            <div className="absolute inset-0 bg-black/5 backdrop-blur-[1px] hidden group-hover:flex items-center justify-center gap-2 rounded transition-all">
+                                            <div className="absolute inset-0 bg-black/5 backdrop-blur-[1px] hidden group-hover:flex items-center justify-center gap-1 rounded transition-all">
                                                 <button
                                                     onClick={() => navigate(`/documents/${file.id}`)}
-                                                    className="p-1.5 bg-white rounded shadow text-[#004A99] hover:text-blue-800"
+                                                    className="p-1 bg-white rounded shadow text-[#004A99] hover:text-blue-800"
                                                     title={t('references.documentManager.viewDetail')}
                                                 >
-                                                    <Eye size={14} />
+                                                    <Eye size={12} />
                                                 </button>
                                                 <button
                                                     onClick={() => setEditingFileId(file.id)}
-                                                    className="p-1.5 bg-white rounded shadow text-gray-600 hover:text-red-600"
+                                                    className="p-1 bg-white rounded shadow text-gray-600 hover:text-red-600"
                                                     title={t('references.documentManager.editSplitting')}
                                                 >
-                                                    <Scissors size={14} />
+                                                    <Scissors size={12} />
                                                 </button>
                                             </div>
                                         </div>
@@ -289,6 +336,8 @@ const DocumentManager = () => {
                                 </div>
                             </div>
                         )}
+
+                        {/* View Details bottom overlay removed */}
                     </div>
                 ))}
             </div>

@@ -6,7 +6,8 @@
       "admin": "Quản trị viên",
       "user": "Người dùng"
     },
-    "logout": "Đăng xuất"
+    "logout": "Đăng xuất",
+    "date": "Ngày"
   },
   "status": {
     "matched": "Khớp đúng",

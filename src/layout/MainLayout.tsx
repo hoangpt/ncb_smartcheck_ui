@@ -21,6 +21,7 @@ const MainLayout = () => {
     const userRef = useRef<HTMLDivElement | null>(null);
     const langRef = useRef<HTMLDivElement | null>(null);
     // removed hover timer; using click toggles now
+    const closeTimerRef = useRef<number | null>(null);
 
     const role = localStorage.getItem('role');
     const username = localStorage.getItem('username') || 'User';
@@ -72,7 +73,7 @@ const MainLayout = () => {
             document.removeEventListener('mousedown', handleClickOutsideUser);
         };
     }, [isUserMenuOpen]);
-
+    
     useEffect(() => {
         const handleClickOutsideLang = (e: MouseEvent) => {
             if (!isLangOpen) return;
@@ -257,6 +258,20 @@ const MainLayout = () => {
                         <div
                             className="relative pl-6 border-l border-gray-200"
                             ref={userRef}
+                            onMouseEnter={() => {
+                                if (closeTimerRef.current) {
+                                    window.clearTimeout(closeTimerRef.current);
+                                    closeTimerRef.current = null;
+                                }
+                                setIsUserMenuOpen(true);
+                            }}
+                            onMouseLeave={() => {
+                                // Small delay to allow cursor to move into the dropdown smoothly
+                                closeTimerRef.current = window.setTimeout(() => {
+                                    setIsUserMenuOpen(false);
+                                    closeTimerRef.current = null;
+                                }, 150);
+                            }}
                         >
                             <button
                                 type="button"
