@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { X, Save, Plus, Scissors, Check, AlertTriangle, ArrowRight } from 'lucide-react';
+import { Save, Plus, Scissors, Check, ArrowRight } from 'lucide-react';
 import type { FileRecord, PageMapItem } from '../types';
 
 interface SplittingEditorProps {

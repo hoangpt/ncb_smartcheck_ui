@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import {
-    LayoutDashboard, FileText, FileCheck, AlertOctagon, Settings,
-    Bell, Menu, X, LogOut, Users
+    LayoutDashboard, FileText, FileCheck, AlertOctagon,
+    Settings, LogOut, Menu, Bell, X
 } from 'lucide-react';
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
 
 const MainLayout = () => {
@@ -12,7 +12,7 @@ const MainLayout = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     let closeTimer: number | null = null;
-    
+
     const role = localStorage.getItem('role');
     const username = localStorage.getItem('username') || 'User';
     const isAdmin = role === 'Admin';
@@ -140,13 +140,13 @@ const MainLayout = () => {
                             }}
                         >
                             <div className="flex items-center gap-3 cursor-pointer">
-                            <div className="text-right hidden sm:block">
-                                <p className="text-sm font-semibold text-gray-700">{username}</p>
-                                <p className="text-xs text-gray-500">{isAdmin ? 'Quản trị viên' : 'Người dùng'}</p>
-                            </div>
-                            <div className="w-9 h-9 bg-blue-100 text-[#004A99] rounded-full flex items-center justify-center font-bold">
-                                {username[0]?.toUpperCase() || 'U'}
-                            </div>
+                                <div className="text-right hidden sm:block">
+                                    <p className="text-sm font-semibold text-gray-700">{username}</p>
+                                    <p className="text-xs text-gray-500">{isAdmin ? 'Quản trị viên' : 'Người dùng'}</p>
+                                </div>
+                                <div className="w-9 h-9 bg-blue-100 text-[#004A99] rounded-full flex items-center justify-center font-bold">
+                                    {username[0]?.toUpperCase() || 'U'}
+                                </div>
                             </div>
 
                             <div className={`absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-[#ddd] overflow-hidden z-50 ${isUserMenuOpen ? 'block' : 'hidden'}`}>
@@ -167,7 +167,7 @@ const MainLayout = () => {
                 </div>
             </main>
         </div>
-        
+
     );
 };
 

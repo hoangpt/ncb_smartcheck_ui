@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Upload, FileText, ChevronDown, ChevronUp,
     Scissors, CheckCircle, AlertTriangle, Eye
@@ -27,6 +28,7 @@ const TIME_POINTS = {
 };
 
 const DocumentManager = () => {
+    const navigate = useNavigate();
     const [expandedFileId, setExpandedFileId] = useState<string | null>("FILE_20251018_01");
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
     const [files, setFiles] = useState<FileRecord[]>(MOCK_FILES);
@@ -265,7 +267,11 @@ const DocumentManager = () => {
 
                                             {/* Hover Actions */}
                                             <div className="absolute inset-0 bg-black/5 backdrop-blur-[1px] hidden group-hover:flex items-center justify-center gap-2 rounded transition-all">
-                                                <button className="p-1.5 bg-white rounded shadow text-[#004A99] hover:text-blue-800" title="Xem chi tiết">
+                                                <button
+                                                    onClick={() => navigate(`/documents/${file.id}`)}
+                                                    className="p-1.5 bg-white rounded shadow text-[#004A99] hover:text-blue-800"
+                                                    title="Xem chi tiết"
+                                                >
                                                     <Eye size={14} />
                                                 </button>
                                                 <button
