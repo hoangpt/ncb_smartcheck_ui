@@ -3,6 +3,7 @@ import { User, Lock, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
 import { toastSuccess, toastError } from '../services/toast';
+import { useI18n } from '../i18n/I18nProvider';
 
 const Login = () => {
     const [username, setUsername] = useState('');
@@ -11,6 +12,7 @@ const Login = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const navigate = useNavigate();
+    const { t } = useI18n();
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -34,7 +36,7 @@ const Login = () => {
                         access_token: mockUser.response.access_token + Date.now() // Unique token
                     };
                 } else {
-                    throw new Error('Tên đăng nhập hoặc mật khẩu không chính xác');
+                    throw new Error(t('login.error'));
                 }
             } else {
                 response = await apiService.login({
@@ -50,11 +52,11 @@ const Login = () => {
             localStorage.setItem('username', response.username);
             localStorage.setItem('role', response.role);
 
-            toastSuccess('Đăng nhập thành công');
+            toastSuccess(t('login.login') + ' thành công');
             navigate('/');
         } catch (err: any) {
-            setError(err.message || 'Tên đăng nhập hoặc mật khẩu không chính xác');
-            toastError('Đăng nhập thất bại');
+            setError(err.message || t('login.error'));
+            toastError(t('login.login') + ' thất bại');
         } finally {
             setIsLoading(false);
         }
@@ -73,7 +75,7 @@ const Login = () => {
 
                 <form onSubmit={handleLogin} className="space-y-6">
                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-blue-100 ml-1">Tên đăng nhập</label>
+                        <label className="text-sm font-medium text-blue-100 ml-1">{t('login.username')}</label>
                         <div className="relative group">
                             <User className="absolute left-3 top-3 text-blue-300 group-hover:text-white transition-colors" size={20} />
                             <input
@@ -81,13 +83,13 @@ const Login = () => {
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
                                 className="w-full bg-blue-900/30 border border-blue-500/30 focus:border-white/50 rounded-xl py-2.5 pl-10 pr-4 text-white placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-white/20 transition-all"
-                                placeholder="Username"
+                                placeholder={t('login.username')}
                             />
                         </div>
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-blue-100 ml-1">Mật khẩu</label>
+                        <label className="text-sm font-medium text-blue-100 ml-1">{t('login.password')}</label>
                         <div className="relative group">
                             <Lock className="absolute left-3 top-3 text-blue-300 group-hover:text-white transition-colors" size={20} />
                             <input
@@ -121,7 +123,7 @@ const Login = () => {
                         {isLoading ? (
                             <div className="w-5 h-5 border-2 border-[#004A99] border-t-transparent rounded-full animate-spin" />
                         ) : (
-                            'Đăng nhập'
+                            t('login.login')
                         )}
                     </button>
                 </form>

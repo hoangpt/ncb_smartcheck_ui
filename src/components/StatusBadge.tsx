@@ -1,4 +1,5 @@
 import { CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
+import { useI18n } from '../i18n/I18nProvider';
 
 interface StatusBadgeProps {
     status: 'matched' | 'mismatch' | 'review' | 'processed' | 'processing' | 'error';
@@ -6,6 +7,7 @@ interface StatusBadgeProps {
 }
 
 const StatusBadge = ({ status, score }: StatusBadgeProps) => {
+    const { t } = useI18n();
     const styles = {
         matched: "bg-green-100 text-green-700 border-green-200",
         review: "bg-amber-100 text-amber-700 border-amber-200",
@@ -16,12 +18,12 @@ const StatusBadge = ({ status, score }: StatusBadgeProps) => {
     };
 
     const labels = {
-        matched: "Khớp đúng",
-        review: "Cần kiểm tra",
-        mismatch: "Lệch dữ liệu",
-        processed: "Đã xử lý",
-        processing: "Đang chạy...",
-        error: "Lỗi"
+        matched: t('status.matched'),
+        review: t('status.review'),
+        mismatch: t('status.mismatch'),
+        processed: t('status.processed'),
+        processing: t('status.processing'),
+        error: t('status.error')
     };
 
     return (

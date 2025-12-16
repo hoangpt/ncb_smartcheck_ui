@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useI18n } from '../src/i18n/I18nProvider';
 import {
     FileText, CheckCircle, AlertTriangle, XCircle, Upload, Search, Filter,
     ChevronRight, ArrowLeft, Save, Download, Eye, Scissors, Check, X,
@@ -173,6 +174,7 @@ const Header = () => (
 // --- APP COMPONENT ---
 
 const App = () => {
+    const { t } = useI18n();
     const [activeTab, setActiveTab] = useState('doc_manager'); // dashboard, doc_manager, reconciliation, exceptions, config
     const [selectedDeal, setSelectedDeal] = useState(null);
     const [expandedFileId, setExpandedFileId] = useState("FILE_20251018_01");
@@ -184,12 +186,12 @@ const App = () => {
         <div className="p-8 animate-fade-in space-y-6">
             <div className="flex justify-between items-end">
                 <div>
-                    <h2 className="text-2xl font-bold text-gray-800">Quản lý Lô chứng từ</h2>
-                    <p className="text-gray-500 mt-1">Upload và theo dõi trạng thái cắt Deal từ file scan</p>
+                    <h2 className="text-2xl font-bold text-gray-800">{t('references.documentManager.title')}</h2>
+                    <p className="text-gray-500 mt-1">{t('references.documentManager.subtitle')}</p>
                 </div>
                 <button className="bg-[#004A99] hover:bg-blue-800 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-lg active:scale-95 transition-transform">
                     <Upload size={18} />
-                    <span>Upload File Scan Mới</span>
+                    <span>{t('references.documentManager.uploadNew')}</span>
                 </button>
             </div>
 
@@ -197,15 +199,15 @@ const App = () => {
             <div className="grid grid-cols-3 gap-6">
                 <div className="bg-white p-4 rounded-xl shadow-sm border flex items-center gap-4 border-[#ddd]">
                     <div className="p-3 bg-blue-50 text-blue-700 rounded-lg"><FilesIcon size={24} /></div>
-                    <div><p className="text-sm text-gray-500">File trong ngày</p><p className="text-2xl font-bold">12</p></div>
+                    <div><p className="text-sm text-gray-500">{t('references.stats.filesToday')}</p><p className="text-2xl font-bold">12</p></div>
                 </div>
                 <div className="bg-white p-4 rounded-xl shadow-sm border flex items-center gap-4 border-[#ddd]">
                     <div className="p-3 bg-green-50 text-green-700 rounded-lg"><Layers size={24} /></div>
-                    <div><p className="text-sm text-gray-500">Tổng Deals bóc tách</p><p className="text-2xl font-bold">186</p></div>
+                    <div><p className="text-sm text-gray-500">{t('references.stats.totalDealsExtracted')}</p><p className="text-2xl font-bold">186</p></div>
                 </div>
                 <div className="bg-white p-4 rounded-xl shadow-sm border flex items-center gap-4 border-[#ddd]">
                     <div className="p-3 bg-amber-50 text-amber-700 rounded-lg"><AlertOctagon size={24} /></div>
-                    <div><p className="text-sm text-gray-500">Trang chưa nhận diện</p><p className="text-2xl font-bold">5</p></div>
+                    <div><p className="text-sm text-gray-500">{t('references.stats.unrecognizedPages')}</p><p className="text-2xl font-bold">5</p></div>
                 </div>
             </div>
 
@@ -299,7 +301,7 @@ const App = () => {
                                         onClick={() => setActiveTab('reconciliation')}
                                         className="text-sm text-[#004A99] font-semibold hover:underline flex items-center gap-1"
                                     >
-                                        Chuyển sang chấm điểm các deal này <ChevronRight size={14} />
+                                        {t('references.documentManager.goToScoring')} <ChevronRight size={14} />
                                     </button>
                                 </div>
                             </div>
@@ -315,36 +317,36 @@ const App = () => {
         <div className="p-8 animate-fade-in">
             <div className="flex justify-between items-center mb-6">
                 <div>
-                    <h2 className="text-2xl font-bold text-gray-800">Đối soát giao dịch</h2>
-                    <p className="text-gray-500 mt-1">Danh sách các Deal đã được cắt và sẵn sàng chấm điểm</p>
+                    <h2 className="text-2xl font-bold text-gray-800">{t('references.reconciliation.title')}</h2>
+                    <p className="text-gray-500 mt-1">{t('references.reconciliation.subtitle')}</p>
                 </div>
                 <div className="flex gap-2">
                     <button className="px-3 py-2 bg-white border rounded-lg text-gray-600 shadow-sm">
                         <Filter size={18} />
                     </button>
                     <button className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2 text-sm font-medium shadow-sm">
-                        <Download size={18} /> Xuất Excel
+                        <Download size={18} /> {t('references.reconciliation.exportExcel')}
                     </button>
                 </div>
             </div>
 
             {/* Filter Tabs */}
             <div className="flex gap-4 mb-6 border-b pb-1 border-[#ddd]">
-                <button className="px-4 py-2 text-[#004A99] font-bold border-b-2 border-[#004A99]">Tất cả (16)</button>
-                <button className="px-4 py-2 text-gray-500 hover:text-gray-700">Chờ duyệt (4)</button>
-                <button className="px-4 py-2 text-gray-500 hover:text-gray-700">Ngoại lệ (2)</button>
-                <button className="px-4 py-2 text-gray-500 hover:text-gray-700">Đã hoàn thành (10)</button>
+                <button className="px-4 py-2 text-[#004A99] font-bold border-b-2 border-[#004A99]">{t('references.reconciliation.tabs.all', { total: 16 })}</button>
+                <button className="px-4 py-2 text-gray-500 hover:text-gray-700">{t('references.reconciliation.tabs.pending', { count: 4 })}</button>
+                <button className="px-4 py-2 text-gray-500 hover:text-gray-700">{t('references.reconciliation.tabs.exceptions', { count: 2 })}</button>
+                <button className="px-4 py-2 text-gray-500 hover:text-gray-700">{t('references.reconciliation.tabs.done', { count: 10 })}</button>
             </div>
 
             <div className="bg-white rounded-lg shadow border border-[#ddd] overflow-hidden">
                 <table className="w-full text-sm text-left">
                     <thead className="bg-gray-100 text-gray-600 font-semibold uppercase text-xs">
                         <tr>
-                            <th className="px-6 py-4">Deal ID</th>
-                            <th className="px-6 py-4">Nguồn File</th>
-                            <th className="px-6 py-4">Đơn vị</th>
-                            <th className="px-6 py-4 text-right">Giá trị (VND)</th>
-                            <th className="px-6 py-4 text-center">Trạng thái</th>
+                            <th className="px-6 py-4">{t('references.reconciliation.table.dealId')}</th>
+                            <th className="px-6 py-4">{t('references.reconciliation.table.sourceFile')}</th>
+                            <th className="px-6 py-4">{t('references.reconciliation.table.unit')}</th>
+                            <th className="px-6 py-4 text-right">{t('references.reconciliation.table.amountVND')}</th>
+                            <th className="px-6 py-4 text-center">{t('references.reconciliation.table.status')}</th>
                             <th className="px-6 py-4"></th>
                         </tr>
                     </thead>
@@ -362,7 +364,7 @@ const App = () => {
                                 </td>
                                 <td className="px-6 py-4 text-right">
                                     <button className="text-[#004A99] font-medium text-xs border border-blue-200 px-3 py-1 rounded bg-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-blue-50">
-                                        Chấm điểm
+                                        {t('references.reconciliation.table.scoreAction')}
                                     </button>
                                 </td>
                             </tr>
@@ -376,7 +378,7 @@ const App = () => {
     // 3. MÀN HÌNH BÁO CÁO NGOẠI LỆ
     const ExceptionView = () => (
         <div className="p-8 animate-fade-in">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">Báo cáo ngoại lệ</h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">{t('references.exceptions.title')}</h2>
             <div className="bg-white rounded-xl shadow-sm overflow-hidden">
                 {/* ... (Giữ nguyên như cũ) */}
                 <div className="p-4 bg-red-50 border-b border-red-100 flex items-center gap-2 text-red-800">
@@ -386,11 +388,11 @@ const App = () => {
                 <table className="w-full text-sm">
                     <thead className="bg-gray-50 text-gray-600 font-semibold text-xs uppercase">
                         <tr>
-                            <th className="px-6 py-3 text-left">Mức độ</th>
-                            <th className="px-6 py-3 text-left">Loại lỗi</th>
-                            <th className="px-6 py-3 text-left">Mô tả chi tiết</th>
-                            <th className="px-6 py-3 text-left">Nguồn</th>
-                            <th className="px-6 py-3 text-right">Hành động</th>
+                            <th className="px-6 py-3 text-left">{t('references.exceptions.table.severity')}</th>
+                            <th className="px-6 py-3 text-left">{t('references.exceptions.table.errorType')}</th>
+                            <th className="px-6 py-3 text-left">{t('references.exceptions.table.description')}</th>
+                            <th className="px-6 py-3 text-left">{t('references.exceptions.table.source')}</th>
+                            <th className="px-6 py-3 text-right">{t('references.exceptions.table.actions')}</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-[#ddd]">
@@ -405,8 +407,8 @@ const App = () => {
                                 <td className="px-6 py-4 text-gray-600">{ex.desc}</td>
                                 <td className="px-6 py-4 text-xs text-gray-500">{ex.source}</td>
                                 <td className="px-6 py-4 text-right">
-                                    <button className="text-blue-600 hover:text-blue-800 font-medium text-xs mr-3">Xem nguồn</button>
-                                    <button className="text-gray-600 hover:text-gray-800 font-medium text-xs">Bỏ qua</button>
+                                    <button className="text-blue-600 hover:text-blue-800 font-medium text-xs mr-3">{t('references.exceptions.table.viewSource')}</button>
+                                    <button className="text-gray-600 hover:text-gray-800 font-medium text-xs">{t('references.exceptions.table.ignore')}</button>
                                 </td>
                             </tr>
                         ))}
@@ -419,21 +421,21 @@ const App = () => {
     // 4. MÀN HÌNH CẤU HÌNH
     const ConfigView = () => (
         <div className="p-8 animate-fade-in max-w-4xl mx-auto">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">Cấu hình hệ thống</h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">{t('references.config.title')}</h2>
             <div className="grid gap-8">
                 {/* Section 1: Quy tắc cắt trang */}
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-[#ddd]">
                     <div className="flex items-center gap-3 mb-4 text-[#004A99]">
                         <Scissors size={24} />
-                        <h3 className="font-bold text-lg">Quy tắc Cắt & Phân loại (Splitting Rules)</h3>
+                        <h3 className="font-bold text-lg">{t('references.config.splittingRules')}</h3>
                     </div>
                     {/* ... giữ nguyên nội dung ... */}
                     <div className="space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Regex nhận diện Deal ID (Start Page)</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{t('references.config.regexDealId')}</label>
                             <div className="flex gap-2">
                                 <input type="text" defaultValue="^(FC|FT|LD)[0-9]{10,}" className="flex-1 border p-2 rounded font-mono text-sm bg-gray-50" />
-                                <button className="px-3 py-2 bg-gray-200 rounded text-sm font-medium">Test</button>
+                                <button className="px-3 py-2 bg-gray-200 rounded text-sm font-medium">{t('references.config.test')}</button>
                             </div>
                         </div>
                     </div>
@@ -547,14 +549,14 @@ const App = () => {
                     <div className="w-1/2 flex flex-col bg-white overflow-auto">
                         <div className="p-6">
                             <h3 className="text-[#004A99] font-bold mb-4 flex items-center gap-2">
-                                <LayoutDashboard size={18} /> Thông tin giao dịch
+                                <LayoutDashboard size={18} /> {t('references.workbench.transactionInfo')}
                             </h3>
 
                             {/* Comparison Form */}
                             <div className="grid grid-cols-2 gap-x-8 gap-y-6">
                                 {/* Header Row */}
-                                <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-[-10px]">Dữ liệu trích xuất (OCR)</div>
-                                <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-[-10px]">Dữ liệu hệ thống (Core)</div>
+                                <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-[-10px]">{t('references.workbench.ocrData')}</div>
+                                <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-[-10px]">{t('references.workbench.coreData')}</div>
 
                                 {/* Deal ID */}
                                 <div className="bg-gray-50 p-3 rounded border border-gray-200">
@@ -571,7 +573,7 @@ const App = () => {
 
                                 {/* Amount - The critical part */}
                                 <div className={`p-3 rounded border ${isAmountMismatch ? 'bg-red-50 border-red-200' : 'bg-gray-50 border-gray-200'}`}>
-                                    <label className="text-xs text-gray-500 block mb-1">Số tiền (VND)</label>
+                                    <label className="text-xs text-gray-500 block mb-1">{t('references.workbench.amountVND')}</label>
                                     <input
                                         type="text"
                                         className={`w-full bg-transparent font-mono font-bold text-lg outline-none ${isAmountMismatch ? 'text-red-600' : 'text-gray-800'}`}
@@ -581,7 +583,7 @@ const App = () => {
                                 </div>
                                 <div className={`p-3 rounded border flex justify-between items-center ${isAmountMismatch ? 'bg-red-50 border-red-200' : 'bg-blue-50 border-blue-100'}`}>
                                     <div>
-                                        <label className="text-xs text-blue-500 block mb-1">System Amount</label>
+                                        <label className="text-xs text-blue-500 block mb-1">{t('references.workbench.systemAmount')}</label>
                                         <div className={`font-mono font-bold text-lg ${isAmountMismatch ? 'text-red-700' : 'text-blue-900'}`}>
                                             {new Intl.NumberFormat('vi-VN').format(selectedDeal.amount_system)}
                                         </div>
@@ -597,7 +599,7 @@ const App = () => {
 
                                 {/* Customer */}
                                 <div className="bg-gray-50 p-3 rounded border border-gray-200 col-span-2">
-                                    <label className="text-xs text-gray-500 block mb-1">Khách hàng / Đơn vị</label>
+                                    <label className="text-xs text-gray-500 block mb-1">{t('references.workbench.customerUnit')}</label>
                                     <div className="font-medium">{selectedDeal.customer}</div>
                                 </div>
                             </div>
@@ -606,7 +608,7 @@ const App = () => {
 
                             {/* Signature Verification Section */}
                             <h3 className="text-[#004A99] font-bold mb-4 flex items-center gap-2">
-                                <FileCheck size={18} /> Đối chiếu chữ ký
+                                <FileCheck size={18} /> {t('references.workbench.signatureMatch')}
                             </h3>
 
                             <div className="space-y-4">
@@ -673,11 +675,11 @@ const App = () => {
 
                         {/* Action Footer */}
                         <div className="mt-auto p-4 border-t bg-gray-50 flex justify-between items-center">
-                            <button className="text-gray-500 hover:text-gray-700 text-sm font-medium">Báo cáo sai sót</button>
+                            <button className="text-gray-500 hover:text-gray-700 text-sm font-medium">{t('references.workbench.reportIssue')}</button>
                             <div className="flex gap-3">
-                                <button className="px-4 py-2 bg-white border text-gray-700 rounded-lg shadow-sm hover:bg-gray-50 text-sm font-medium">Bỏ qua</button>
+                                <button className="px-4 py-2 bg-white border text-gray-700 rounded-lg shadow-sm hover:bg-gray-50 text-sm font-medium">{t('references.workbench.skip')}</button>
                                 <button className="px-6 py-2 bg-[#ED1C24] text-white rounded-lg shadow hover:bg-red-700 text-sm font-medium flex items-center gap-2">
-                                    <Save size={16} /> Lưu & Tiếp tục
+                                    <Save size={16} /> {t('references.workbench.saveAndContinue')}
                                 </button>
                             </div>
                         </div>

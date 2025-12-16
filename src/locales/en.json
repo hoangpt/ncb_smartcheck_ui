@@ -1,0 +1,195 @@
+{
+  "common": {
+    "appName": "Smart Doc Check",
+    "startWork": "Start Working",
+    "role": {
+      "admin": "Administrator",
+      "user": "User"
+    },
+    "logout": "Log out",
+    "date": "Date"
+  },
+  "status": {
+    "matched": "Matched",
+    "review": "Needs review",
+    "mismatch": "Data mismatch",
+    "processed": "Processed",
+    "processing": "Processing...",
+    "error": "Error"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "documents": "Document Batches",
+    "reconciliation": "Reconciliation",
+    "exceptions": "Exceptions",
+    "users": "User Management",
+    "config": "Settings"
+  },
+  "header": {
+    "title": {
+      "dashboard": "Overview Dashboard",
+      "documents": "Document Batches",
+      "reconciliation": "Transaction Reconciliation",
+      "exceptions": "Exception Report",
+      "users": "User Management",
+      "config": "System Settings"
+    }
+  },
+  "dashboard": {
+    "greeting": "Hello, {name}!",
+    "subtitleReady": "Smart Doc Check is ready",
+    "highlight": "There are {count} new batches to process today"
+    ,
+    "analysis": {
+      "title": "Traffic Analysis",
+      "last7Days": "Last 7 days",
+      "thisMonth": "This month",
+      "placeholder": "[Bar Chart Placeholder: Daily Processed Deals]"
+    },
+    "stats": {
+      "automationRate": "Automation Rate",
+      "vsLastWeek": "Compared to last week",
+      "ocrAccuracy": "OCR Accuracy",
+      "modelVersion": "Model {{version}}",
+      "riskAlerts": "Risk Alerts",
+      "needsImmediateAttention": "Needs immediate attention"
+    }
+  },
+  "login": {
+    "username": "Username",
+    "password": "Password",
+    "login": "Log in",
+    "error": "Invalid username or password"
+  },
+  "reconciliation": {
+    "title": "Transaction Reconciliation",
+    "subtitle": "List of deals extracted and ready for scoring",
+    "exportExcel": "Export Excel",
+    "tabs": {
+      "all": "All ({total})",
+      "pending": "Pending ({count})",
+      "exceptions": "Exceptions ({count})",
+      "done": "Completed ({count})"
+    },
+    "table": {
+      "dealId": "Deal ID",
+      "sourceFile": "Source File",
+      "unit": "Unit",
+      "amountVND": "Amount (VND)",
+      "status": "Status",
+      "scoreAction": "Score"
+    },
+    "pageLabel": "Page {range}"
+  },
+  "exceptions": {
+    "title": "Exception Report",
+    "banner": "Detected {count} issues requiring manual handling",
+    "table": {
+      "severity": "Severity",
+      "errorType": "Error Type",
+      "description": "Detailed Description",
+      "source": "Source",
+      "actions": "Actions",
+      "viewSource": "View Source",
+      "ignore": "Ignore"
+    },
+    "severity": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "empty": "No exceptions to process.",
+    "confirmIgnore": "Are you sure you want to ignore this error?"
+  },
+  "references": {
+    "sidebar": {
+      "brand": "NCB CORE",
+      "documents": "Document Manager",
+      "reconciliation": "Reconciliation",
+      "exceptions": "Exception Report",
+      "system": "System",
+      "config": "Settings"
+    },
+    "documentManager": {
+      "title": "Document Batches",
+      "subtitle": "Upload and track deal-splitting from scanned files",
+      "uploadNew": "Upload New Scan File",
+      "goToScoring": "Go to scoring these deals",
+      "splittingMap": "Splitting Map",
+      "splitError": "Split error",
+      "uploadMeta": "Upload: {time} by {user} • {pages} pages",
+      "dealsCount": "{count} Deals",
+      "pageLabel": "Page {range}",
+      "viewDetail": "View details",
+      "editSplitting": "Edit splitting",
+      "status": {
+        "upload": "Uploading...",
+        "scan": "Scanning & OCR...",
+        "split": "Splitting file...",
+        "structure": "Structuring data...",
+        "matching": "Matching & scoring...",
+        "done": "Completed"
+      }
+    },
+    "stats": {
+      "filesToday": "Files today",
+      "totalDealsExtracted": "Total extracted deals",
+      "unrecognizedPages": "Unrecognized pages"
+    },
+    "reconciliation": {
+      "title": "Transaction Reconciliation",
+      "subtitle": "List of deals extracted and ready for scoring",
+      "exportExcel": "Export Excel",
+      "tabs": {
+        "all": "All ({total})",
+        "pending": "Pending ({count})",
+        "exceptions": "Exceptions ({count})",
+        "done": "Completed ({count})"
+      },
+      "table": {
+        "dealId": "Deal ID",
+        "sourceFile": "Source File",
+        "unit": "Unit",
+        "amountVND": "Amount (VND)",
+        "status": "Status",
+        "scoreAction": "Score"
+      }
+    },
+    "exceptions": {
+      "title": "Exception Report",
+      "table": {
+        "severity": "Severity",
+        "errorType": "Error Type",
+        "description": "Detailed Description",
+        "source": "Source",
+        "actions": "Actions",
+        "viewSource": "View Source",
+        "ignore": "Ignore"
+      }
+    },
+    "config": {
+      "title": "System Settings",
+      "splittingRules": "Splitting & Classification Rules",
+      "regexDealId": "Regex to detect Deal ID (Start Page)",
+      "regexDealIdHelp": "Regular expression used to detect the transaction code that starts a new case.",
+      "test": "Test",
+      "systemParams": "System Parameters",
+      "thresholdMismatchVND": "Mismatch alert threshold (VND)",
+      "minOcrConfidence": "Minimum OCR confidence (%)",
+      "dataManagementTitle": "Data Management (Coming Soon)",
+      "dataManagementDesc": "Backup and restore features are under development."
+    },
+    "workbench": {
+      "transactionInfo": "Transaction Information",
+      "ocrData": "Extracted Data (OCR)",
+      "coreData": "System Data (Core)",
+      "amountVND": "Amount (VND)",
+      "systemAmount": "System Amount",
+      "customerUnit": "Customer / Unit",
+      "signatureMatch": "Signature Matching",
+      "reportIssue": "Report Issue",
+      "skip": "Skip",
+      "saveAndContinue": "Save & Continue"
+    }
+  }
+}
