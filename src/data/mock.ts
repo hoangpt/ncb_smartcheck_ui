@@ -21,17 +21,6 @@ export const MOCK_FILES: FileRecord[] = [
             { range: "11-12", deal_id: "FC208TQD...003", type: "Deal", status: "valid" },
             { range: "13-14", deal_id: "FC208TQD...004", type: "Deal", status: "valid" },
         ]
-    },
-    {
-        id: "FILE_20251018_02",
-        name: "18.10.2025 HATTT1_0002.pdf",
-        uploadedBy: "Trần Thu Hà",
-        uploadTime: "18/10/2025 09:15",
-        total_pages: 12,
-        deals_detected: 0,
-        status: "processing",
-        process_progress: 45,
-        page_map: []
     }
 ];
 
