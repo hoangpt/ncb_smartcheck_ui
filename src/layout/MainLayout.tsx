@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Toaster } from 'react-hot-toast';
 import {
     LayoutDashboard, FileText, FileCheck, AlertOctagon,
     Settings, LogOut, Menu, Bell, X
@@ -11,6 +12,10 @@ const MainLayout = () => {
     const location = useLocation();
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+    const [isNotifOpen, setIsNotifOpen] = useState(false);
+    const [notifications] = useState<Array<{ id: string; title: string; time: string }>>([]);
+    const notifRef = useRef<HTMLDivElement | null>(null);
+    const userRef = useRef<HTMLDivElement | null>(null);
     let closeTimer: number | null = null;
 
     const role = localStorage.getItem('role');
@@ -33,6 +38,36 @@ const MainLayout = () => {
     };
 
     const isActive = (path: string) => location.pathname === path;
+
+    useEffect(() => {
+        const handleClickOutsideNotif = (e: MouseEvent) => {
+            if (!isNotifOpen) return;
+            const target = e.target as Node;
+            if (notifRef.current && !notifRef.current.contains(target)) {
+                setIsNotifOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutsideNotif);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutsideNotif);
+        };
+    }, [isNotifOpen]);
+
+    useEffect(() => {
+        const handleClickOutsideUser = (e: MouseEvent) => {
+            if (!isUserMenuOpen) return;
+            const target = e.target as Node;
+            const container = userRef.current;
+            if (container && !container.contains(target)) {
+                setIsUserMenuOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutsideUser);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutsideUser);
+        };
+    }, [isUserMenuOpen]);
 
     return (
         <div className="min-h-screen bg-gray-50 flex font-sans text-gray-800">
@@ -106,6 +141,19 @@ const MainLayout = () => {
 
             {/* Main Content */}
             <main className="flex-1 flex flex-col h-screen overflow-hidden">
+                {/* Toasts centered relative to main content (excluding sidebar) */}
+                <Toaster
+                    position="top-center"
+                    gutter={8}
+                    toastOptions={{
+                        style: { border: '1px solid #ddd', boxShadow: '0 8px 24px rgba(0,0,0,0.12)' }
+                    }}
+                    containerStyle={{
+                        left: isSidebarOpen ? 256 : 80,
+                        right: 0,
+                        top: 16
+                    }}
+                />
                 {/* Header */}
                 <header className="h-16 bg-white border-b flex items-center justify-between px-6 shadow-sm z-10 border-[#ddd]">
                     <h1 className="text-xl font-bold text-gray-800">
@@ -118,28 +166,55 @@ const MainLayout = () => {
                     </h1>
 
                     <div className="flex items-center gap-6">
-                        <div className="relative">
-                            <Bell size={20} className="text-gray-500 hover:text-[#004A99] cursor-pointer" />
+                        <div className="relative" ref={notifRef}>
+                            <button
+                                type="button"
+                                aria-haspopup="true"
+                                aria-expanded={isNotifOpen}
+                                onClick={() => setIsNotifOpen((v) => !v)}
+                                className="p-1 rounded hover:bg-gray-100"
+                            >
+                                <Bell size={20} className="text-gray-500 hover:text-[#004A99] cursor-pointer" />
+                            </button>
                             <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+
+                            {/* Notifications dropdown */}
+                            <div
+                                className={`absolute top-full right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-[#ddd] z-50 ${isNotifOpen ? 'block' : 'hidden'}`}
+                                role="dialog"
+                                aria-label="Thông báo"
+                            >
+                                <div className="flex flex-col gap-3 p-2 max-h-64 overflow-auto">
+                                    {notifications.length === 0 ? (
+                                        <div className="flex flex-col items-center justify-center h-28 gap-1.5 text-center">
+                                            <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+                                                <Bell size={18} className="text-gray-400" />
+                                            </div>
+                                            <div className="text-sm font-medium text-gray-700">Chưa có thông báo</div>
+                                            <div className="text-xs text-gray-500">Thông báo mới sẽ xuất hiện tại đây.</div>
+                                        </div>
+                                    ) : (
+                                        notifications.map((n) => (
+                                            <div key={n.id} className="flex flex-col gap-1">
+                                                <span className="text-sm font-medium text-gray-800">{n.title}</span>
+                                                <span className="text-xs text-gray-500">{n.time}</span>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
                         </div>
                         <div
                             className="relative pl-6 border-l border-gray-200"
-                            onMouseEnter={() => {
-                                if (closeTimer) {
-                                    window.clearTimeout(closeTimer);
-                                    closeTimer = null;
-                                }
-                                setIsUserMenuOpen(true);
-                            }}
-                            onMouseLeave={() => {
-                                // Small delay to allow cursor to move into the dropdown smoothly
-                                closeTimer = window.setTimeout(() => {
-                                    setIsUserMenuOpen(false);
-                                    closeTimer = null;
-                                }, 150);
-                            }}
+                            ref={userRef}
                         >
-                            <div className="flex items-center gap-3 cursor-pointer">
+                            <button
+                                type="button"
+                                onClick={() => setIsUserMenuOpen((v) => !v)}
+                                className="flex items-center gap-3 cursor-pointer select-none"
+                                aria-haspopup="true"
+                                aria-expanded={isUserMenuOpen}
+                            >
                                 <div className="text-right hidden sm:block">
                                     <p className="text-sm font-semibold text-gray-700">{username}</p>
                                     <p className="text-xs text-gray-500">{isAdmin ? 'Quản trị viên' : 'Người dùng'}</p>
@@ -147,8 +222,7 @@ const MainLayout = () => {
                                 <div className="w-9 h-9 bg-blue-100 text-[#004A99] rounded-full flex items-center justify-center font-bold">
                                     {username[0]?.toUpperCase() || 'U'}
                                 </div>
-                            </div>
-
+                            </button>
                             <div className={`absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-[#ddd] overflow-hidden z-50 ${isUserMenuOpen ? 'block' : 'hidden'}`}>
                                 <button
                                     onClick={handleLogout}

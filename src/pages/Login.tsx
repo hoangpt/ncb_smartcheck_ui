@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { User, Lock, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
+import { toastSuccess, toastError } from '../services/toast';
 
 const Login = () => {
     const [username, setUsername] = useState('');
@@ -49,9 +50,11 @@ const Login = () => {
             localStorage.setItem('username', response.username);
             localStorage.setItem('role', response.role);
 
+            toastSuccess('Đăng nhập thành công');
             navigate('/');
         } catch (err: any) {
             setError(err.message || 'Tên đăng nhập hoặc mật khẩu không chính xác');
+            toastError('Đăng nhập thất bại');
         } finally {
             setIsLoading(false);
         }

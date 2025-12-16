@@ -1,6 +1,8 @@
 import { ArrowRight, BarChart3, PieChart, AlertOctagon, FileText } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
+    const navigate = useNavigate();
     return (
         <div className="p-8 animate-fade-in">
             {/* Welcome Banner */}
@@ -8,7 +10,10 @@ const Dashboard = () => {
                 <div className="relative z-10">
                     <h2 className="text-3xl font-bold mb-2">Xin chào, Admin User!</h2>
                     <p className="text-blue-100 max-w-xl">Hệ thống Smart Doc Check đã sẵn sàng. Hôm nay có 12 lô chứng từ mới cần xử lý.</p>
-                    <button className="mt-6 bg-white text-[#004A99] px-6 py-2.5 rounded-lg font-bold shadow hover:bg-blue-50 transition-colors flex items-center gap-2">
+                    <button
+                        onClick={() => navigate('/documents')}
+                        className="mt-6 bg-white text-[#004A99] px-6 py-2.5 rounded-lg font-bold shadow hover:bg-blue-50 transition-colors flex items-center gap-2"
+                    >
                         Bắt đầu làm việc <ArrowRight size={18} />
                     </button>
                 </div>
