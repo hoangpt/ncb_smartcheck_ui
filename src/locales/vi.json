@@ -170,7 +170,13 @@
       "title": "Cấu hình hệ thống",
       "splittingRules": "Quy tắc Cắt & Phân loại",
       "regexDealId": "Regex nhận diện Deal ID (Start Page)",
-      "test": "Test"
+      "regexDealIdHelp": "Biểu thức chính quy dùng để phát hiện mã giao dịch bắt đầu một hồ sơ mới.",
+      "test": "Test",
+      "systemParams": "Tham số hệ thống",
+      "thresholdMismatchVND": "Ngưỡng cảnh báo lệch tiền (VND)",
+      "minOcrConfidence": "Độ tin cậy OCR tối thiểu (%)",
+      "dataManagementTitle": "Quản lý dữ liệu (Coming Soon)",
+      "dataManagementDesc": "Tính năng sao lưu và phục hồi dữ liệu đang được phát triển."
     },
     "workbench": {
       "transactionInfo": "Thông tin giao dịch",

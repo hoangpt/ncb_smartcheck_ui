@@ -170,7 +170,13 @@
       "title": "System Settings",
       "splittingRules": "Splitting & Classification Rules",
       "regexDealId": "Regex to detect Deal ID (Start Page)",
-      "test": "Test"
+      "regexDealIdHelp": "Regular expression used to detect the transaction code that starts a new case.",
+      "test": "Test",
+      "systemParams": "System Parameters",
+      "thresholdMismatchVND": "Mismatch alert threshold (VND)",
+      "minOcrConfidence": "Minimum OCR confidence (%)",
+      "dataManagementTitle": "Data Management (Coming Soon)",
+      "dataManagementDesc": "Backup and restore features are under development."
     },
     "workbench": {
       "transactionInfo": "Transaction Information",
