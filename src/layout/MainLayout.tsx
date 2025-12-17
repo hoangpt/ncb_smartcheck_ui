@@ -198,7 +198,7 @@ const MainLayout = () => {
                             >
                                 <Globe size={16} className="text-gray-600" />
                                 <span className="text-xs font-medium">{lang === 'en' ? 'GB' : 'VN'}</span>
-                                <span className="text-sm">{lang === 'en' ? 'English' : 'Tiếng Việt'}</span>
+                                <span className="text-sm">{lang === 'en' ? t('common.language.english') : t('common.language.vietnamese')}</span>
                             </button>
                             <div className={`absolute top-full right-0 mt-2 w-40 bg-white rounded-lg shadow-xl border border-[#ddd] z-50 overflow-hidden ${isLangOpen ? 'block' : 'hidden'}`}>
                                 <button
@@ -206,14 +206,14 @@ const MainLayout = () => {
                                     className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 flex items-center gap-2 cursor-pointer"
                                 >
                                     <span className="text-xs w-8">GB</span>
-                                    <span>English</span>
+                                    <span>{t('common.language.english')}</span>
                                 </button>
                                 <button
                                     onClick={() => { setLang('vi'); setIsLangOpen(false); }}
                                     className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 flex items-center gap-2 cursor-pointer"
                                 >
                                     <span className="text-xs w-8">VN</span>
-                                    <span>Tiếng Việt</span>
+                                    <span>{t('common.language.vietnamese')}</span>
                                 </button>
                             </div>
                         </div>
