@@ -269,6 +269,72 @@ class ApiService {
   async getDealById(dealId: number): Promise<any> {
     return this.request<any>(`/api/deals/${dealId}`);
   }
+
+  async downloadDealPdf(dealId: number): Promise<Blob> {
+    const token = this.getAuthToken();
+    const headers: HeadersInit = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${API_URL}/api/deals/${dealId}/download`, {
+      headers,
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.blob();
+  }
+
+  async downloadSpendingUnitPdf(dealId: number): Promise<Blob> {
+    const token = this.getAuthToken();
+    const headers: HeadersInit = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${API_URL}/api/deals/${dealId}/download/spending-unit`, {
+      headers,
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.blob();
+  }
+
+  async downloadReceivingUnitPdf(dealId: number): Promise<Blob> {
+    const token = this.getAuthToken();
+    const headers: HeadersInit = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${API_URL}/api/deals/${dealId}/download/receiving-unit`, {
+      headers,
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.blob();
+  }
+
+  getDealPdfUrl(dealId: number): string {
+    return `${API_URL}/api/deals/${dealId}/download`;
+  }
+
+  getSpendingUnitPdfUrl(dealId: number): string {
+    return `${API_URL}/api/deals/${dealId}/download/spending-unit`;
+  }
+
+  getReceivingUnitPdfUrl(dealId: number): string {
+    return `${API_URL}/api/deals/${dealId}/download/receiving-unit`;
+  }
 }
 
 export const apiService = new ApiService();
