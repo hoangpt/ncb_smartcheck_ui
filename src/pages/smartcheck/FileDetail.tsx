@@ -1,24 +1,144 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     ArrowLeft, FileText, CheckCircle, AlertTriangle,
-    Calendar, User, Layers
+    Calendar, User, Layers, ExternalLink, Download
 } from 'lucide-react';
-import { MOCK_FILES, MOCK_DEALS } from '../../data/mock';
 import type { Deal } from '../../types';
 import { useI18n } from '../../i18n/I18nProvider';
+import { apiService, type DocumentBatch } from '../../services/api';
+import { format } from 'date-fns';
+import { toastError } from '../../services/toast';
+import { Document, Page, pdfjs } from 'react-pdf';
+
+// Configure PDF.js worker
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 const FileDetail = () => {
     const { id } = useParams<{ id: string }>();
+    console.log('id', id);
     const navigate = useNavigate();
     const { t } = useI18n();
-    const file = MOCK_FILES.find(f => f.id === id);
+    const [file, setFile] = useState<DocumentBatch | null>(null);
+    const [deals, setDeals] = useState<Deal[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
+    const [numPages, setNumPages] = useState<number | null>(null);
 
-    // Filter deals for this file (in a real app, this would be an API call)
-    // For mock data, we just assume MOCK_DEALS are related if they match source_file name logic or just show all for demo
-    const deals = MOCK_DEALS.filter(d => d.source_file === file?.name);
+    // Fetch batch details and deals
+    useEffect(() => {
+        const fetchData = async () => {
+            if (!id) return;
 
-    const [selectedDeal, setSelectedDeal] = useState<Deal | null>(deals[0] || null);
+            setIsLoading(true);
+            try {
+                // Fetch batch details
+                const batch = await apiService.getDocumentBatchById(parseInt(id));
+                setFile(batch);
+
+                // Fetch deals for this batch
+                const batchDeals = await apiService.getDealsByBatch(parseInt(id));
+                // Transform deals to match frontend format
+                // IMPORTANT: keep backend fields like pdf_path/spending_unit_pdf_path so preview/download works
+                const transformedDeals: Deal[] = batchDeals.map(deal => ({
+                    ...(deal as any),
+                    id: deal.deal_id, // UI uses deal_id as the display id
+                    source_file: batch.name,
+                    type: deal.deal_type || 'Unknown',
+                    user: deal.user_code || 'Unknown',
+                    customer: deal.customer_name || 'Unknown',
+                    amount_system: deal.amount_system || 0,
+                    amount_extract: deal.amount_extract || 0,
+                    currency: deal.currency || 'VND',
+                    pages: `${deal.start_page}-${deal.end_page}`,
+                    status: deal.status === 'matched' ? 'matched' : 'mismatch',
+                    score: deal.confidence_score || 0,
+                    timestamp: deal.processed_at ? format(new Date(deal.processed_at), 'dd/MM/yyyy HH:mm') : '',
+                    signatures: deal.signatures || { teller: { status: 'unknown', name: '' }, supervisor: { status: 'unknown', name: '' } }
+                }));
+                setDeals(transformedDeals);
+                setSelectedDeal(transformedDeals[0] || null);
+            } catch (error: any) {
+                console.error('Failed to fetch file details:', error);
+                toastError('Không thể tải chi tiết tài liệu');
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [id]);
+
+    // Get PDF URL to display (prioritize spending unit, then receiving unit, then full deal)
+    const getPdfUrl = (deal: Deal | null) => {
+        if (!deal) return null;
+
+        const API_URL = import.meta.env.VITE_API_URL || 'http://192.168.0.200:8004';
+
+        // Check if deal has spending or receiving unit PDFs from API response
+        const dealData = deal as any;
+
+        console.log('Deal data:', dealData);
+
+        if (dealData.spending_unit_pdf_path) {
+            const url = `${API_URL}/${dealData.spending_unit_pdf_path}`;
+            console.log('Using spending unit PDF:', url);
+            return url;
+        }
+        if (dealData.receiving_unit_pdf_path) {
+            const url = `${API_URL}/${dealData.receiving_unit_pdf_path}`;
+            console.log('Using receiving unit PDF:', url);
+            return url;
+        }
+        if (dealData.pdf_path) {
+            const url = `${API_URL}/${dealData.pdf_path}`;
+            console.log('Using deal PDF:', url);
+            return url;
+        }
+
+        console.log('No PDF path found for deal');
+        return null;
+    };
+
+    // Get full document URL
+    const getFullDocumentUrl = () => {
+        if (!file) return null;
+        const API_URL = import.meta.env.VITE_API_URL || 'http://192.168.0.200:8004';
+        return `${API_URL}/${file.file_path}`;
+    };
+
+    // Handle view full document
+    const handleViewFullDocument = () => {
+        const url = getFullDocumentUrl();
+        if (url) {
+            window.open(url, '_blank');
+        }
+    };
+
+    // Handle download current document
+    const handleDownloadDocument = () => {
+        const url = getPdfUrl(selectedDeal);
+        if (url) {
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${selectedDeal?.id || 'document'}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    };
+
+    const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
+        setNumPages(numPages);
+    };
+
+    if (isLoading) {
+        return (
+            <div className="p-8 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#004A99]"></div>
+            </div>
+        );
+    }
 
     if (!file) {
         return (
@@ -49,8 +169,8 @@ const FileDetail = () => {
                         </span>
                     </h1>
                     <div className="flex items-center gap-4 text-sm text-gray-500 mt-1">
-                        <span className="flex items-center gap-1"><Calendar size={14} /> {file.uploadTime}</span>
-                        <span className="flex items-center gap-1"><User size={14} /> {file.uploadedBy}</span>
+                        <span className="flex items-center gap-1"><Calendar size={14} /> {format(new Date(file.upload_time), 'dd/MM/yyyy HH:mm')}</span>
+                        <span className="flex items-center gap-1"><User size={14} /> {file.uploaded_by || 'Unknown'}</span>
                         <span className="flex items-center gap-1"><Layers size={14} /> {t('references.documentManager.pageCount', { count: file.total_pages })}</span>
                     </div>
                 </div>
@@ -62,7 +182,7 @@ const FileDetail = () => {
                 <div className="w-1/3 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden">
                     <div className="p-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
                         <h3 className="font-bold text-gray-700">{t('references.fileDetail.dealsList', { count: deals.length })}</h3>
-                        <div className="text-xs text-gray-400">{t('references.fileDetail.detectedCount', { count: file.deals_detected })}</div>
+                        <div className="text-xs text-gray-400">{t('references.fileDetail.detectedCount', { count: file.deals_detected || 0 })}</div>
                     </div>
                     <div className="flex-1 overflow-y-auto p-2 space-y-2">
                         {deals.map(deal => (
@@ -204,13 +324,71 @@ const FileDetail = () => {
                     </div>
                 )}
 
-                {/* Right: PDF Viewer Placeholder */}
-                <div className="flex-1 bg-gray-800 rounded-xl shadow-inner flex flex-col items-center justify-center text-gray-400 min-h-[400px]">
-                    <FileText size={48} className="opacity-50 mb-4" />
-                    <p className="text-lg font-medium">{t('references.fileDetail.preview.title')}</p>
-                    <p className="text-sm opacity-70">
-                        {selectedDeal ? t('references.fileDetail.preview.viewingPages', { pages: selectedDeal.pages }) : t('references.fileDetail.preview.selectPrompt')}
-                    </p>
+                {/* Right: PDF Viewer */}
+                <div className="flex-1 bg-gray-100 rounded-xl shadow-inner flex flex-col overflow-hidden min-h-[400px]">
+                    {/* PDF Viewer Header */}
+                    <div className="bg-white border-b border-gray-200 p-3 flex justify-between items-center">
+                        <h3 className="text-sm font-semibold text-gray-700">{t('references.fileDetail.preview.title')}</h3>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={handleViewFullDocument}
+                                className="flex items-center gap-2 px-3 py-1.5 text-sm bg-blue-50 text-blue-700 hover:bg-blue-100 rounded transition-colors"
+                                disabled={!file}
+                            >
+                                <ExternalLink size={16} />
+                                <span>Xem toàn bộ</span>
+                            </button>
+                            <button
+                                onClick={handleDownloadDocument}
+                                className="flex items-center gap-2 px-3 py-1.5 text-sm bg-green-50 text-green-700 hover:bg-green-100 rounded transition-colors"
+                                disabled={!selectedDeal}
+                            >
+                                <Download size={16} />
+                                <span>Tải xuống</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* PDF Content */}
+                    <div className="flex-1 overflow-auto flex items-center justify-center p-4">
+                        {selectedDeal && getPdfUrl(selectedDeal) ? (
+                            <div className="bg-white shadow-lg">
+                                <Document
+                                    file={getPdfUrl(selectedDeal)}
+                                    onLoadSuccess={onDocumentLoadSuccess}
+                                    loading={
+                                        <div className="flex items-center justify-center p-20">
+                                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                                        </div>
+                                    }
+                                    error={
+                                        <div className="text-center p-20 text-gray-500">
+                                            <FileText size={48} className="opacity-50 mb-4 mx-auto" />
+                                            <p>Không thể tải PDF</p>
+                                        </div>
+                                    }
+                                >
+                                    {Array.from(new Array(numPages), (_, index) => (
+                                        <Page
+                                            key={`page_${index + 1}`}
+                                            pageNumber={index + 1}
+                                            width={600}
+                                            renderTextLayer={true}
+                                            renderAnnotationLayer={true}
+                                        />
+                                    ))}
+                                </Document>
+                            </div>
+                        ) : (
+                            <div className="text-center text-gray-400">
+                                <FileText size={48} className="opacity-50 mb-4 mx-auto" />
+                                <p className="text-lg font-medium">{t('references.fileDetail.preview.title')}</p>
+                                <p className="text-sm opacity-70 mt-2">
+                                    {t('references.fileDetail.preview.selectPrompt')}
+                                </p>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>
