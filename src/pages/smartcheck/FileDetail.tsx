@@ -10,9 +10,13 @@ import { apiService, type DocumentBatch } from '../../services/api';
 import { format } from 'date-fns';
 import { toastError } from '../../services/toast';
 import { Document, Page, pdfjs } from 'react-pdf';
+// Ensure worker version matches the bundled pdfjs version resolved by Vite
+import workerSrc from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+import { version as pdfjsVersion } from 'pdfjs-dist/package.json';
 
 // Configure PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+const resolvedWorker = `${workerSrc}${workerSrc.includes('?') ? '&' : '?'}v=${pdfjsVersion}`;
+pdfjs.GlobalWorkerOptions.workerSrc = resolvedWorker;
 
 const FileDetail = () => {
     const { id } = useParams<{ id: string }>();
@@ -43,6 +47,8 @@ const FileDetail = () => {
                 const transformedDeals: Deal[] = batchDeals.map(deal => ({
                     ...(deal as any),
                     id: deal.deal_id, // UI uses deal_id as the display id
+                    dbId: deal.id, // Keep the database ID for API calls
+                    database_id: deal.id, // Also store as database_id
                     source_file: batch.name,
                     type: deal.deal_type || 'Unknown',
                     user: deal.user_code || 'Unknown',
@@ -69,45 +75,61 @@ const FileDetail = () => {
         fetchData();
     }, [id]);
 
-    // Get PDF URL to display (prioritize spending unit, then receiving unit, then full deal)
+    // Reset page count when switching deals to avoid rendering stale pages
+    useEffect(() => {
+        setNumPages(null);
+    }, [selectedDeal?.id]);
+
+    // Get PDF URL to display using API download endpoint
     const getPdfUrl = (deal: Deal | null) => {
         if (!deal) return null;
 
-        const API_URL = import.meta.env.VITE_API_URL || 'http://192.168.0.200:8004';
-
-        // Check if deal has spending or receiving unit PDFs from API response
+        // Get the database ID from the deal data (not the deal_id string)
         const dealData = deal as any;
+        const dealDbId = dealData.dbId || dealData.database_id; // Use the numeric DB ID
 
         console.log('Deal data:', dealData);
+        console.log('Deal DB ID:', dealDbId);
 
+        if (!dealDbId) {
+            console.warn('No database ID found for deal, cannot fetch PDF');
+            return null;
+        }
+
+        // Use API download endpoints with authentication
+        const token = localStorage.getItem('access_token');
+
+        // Prioritize spending unit PDF, then receiving unit, then full deal
         if (dealData.spending_unit_pdf_path) {
-            const url = `${API_URL}/${dealData.spending_unit_pdf_path}`;
+            const url = apiService.getSpendingUnitPdfUrl(dealDbId);
             console.log('Using spending unit PDF:', url);
-            return url;
+            return `${url}${token ? `?token=${token}` : ''}`;
         }
         if (dealData.receiving_unit_pdf_path) {
-            const url = `${API_URL}/${dealData.receiving_unit_pdf_path}`;
+            const url = apiService.getReceivingUnitPdfUrl(dealDbId);
             console.log('Using receiving unit PDF:', url);
-            return url;
+            return `${url}${token ? `?token=${token}` : ''}`;
         }
         if (dealData.pdf_path) {
-            const url = `${API_URL}/${dealData.pdf_path}`;
+            const url = apiService.getDealPdfUrl(dealDbId);
             console.log('Using deal PDF:', url);
-            return url;
+            return `${url}${token ? `?token=${token}` : ''}`;
         }
 
         console.log('No PDF path found for deal');
         return null;
     };
 
-    // Get full document URL
+    // Get full document URL (original batch PDF)
     const getFullDocumentUrl = () => {
         if (!file) return null;
         const API_URL = import.meta.env.VITE_API_URL || 'http://192.168.0.200:8004';
-        return `${API_URL}/${file.file_path}`;
+        const token = localStorage.getItem('access_token');
+        const url = `${API_URL}/${file.file_path}`;
+        return token ? `${url}?token=${token}` : url;
     };
 
-    // Handle view full document
+    // Handle view full document in new tab
     const handleViewFullDocument = () => {
         const url = getFullDocumentUrl();
         if (url) {
@@ -115,16 +137,31 @@ const FileDetail = () => {
         }
     };
 
-    // Handle download current document
-    const handleDownloadDocument = () => {
-        const url = getPdfUrl(selectedDeal);
-        if (url) {
+    // Handle download current selected deal PDF
+    const handleDownloadDocument = async () => {
+        if (!selectedDeal) return;
+
+        const dealData = selectedDeal as any;
+        const dealDbId = dealData.dbId || dealData.database_id;
+
+        if (!dealDbId) {
+            toastError('Không tìm thấy ID của deal');
+            return;
+        }
+
+        try {
+            const blob = await apiService.downloadDealPdf(dealDbId);
+            const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = `${selectedDeal?.id || 'document'}.pdf`;
+            link.download = `${selectedDeal.id || 'document'}.pdf`;
             document.body.appendChild(link);
             link.click();
+            window.URL.revokeObjectURL(url);
             document.body.removeChild(link);
+        } catch (error) {
+            console.error('Download failed:', error);
+            toastError('Không thể tải xuống file PDF');
         }
     };
 
@@ -209,7 +246,7 @@ const FileDetail = () => {
                                     </p>
                                     <p className="flex justify-between">
                                         <span>{t('references.fileDetail.labels.amount')}:</span>
-                                        <span className="font-medium">{deal.amount_extract.toLocaleString('vi-VN')} {deal.currency}</span>
+                                        <span className="font-medium">{deal.amount_system.toLocaleString('vi-VN')} {deal.currency}</span>
                                     </p>
                                     <p className="flex justify-between">
                                         <span>{t('references.fileDetail.labels.pages')}:</span>
@@ -249,10 +286,11 @@ const FileDetail = () => {
                                 </p>
                             </div>
 
-                            {/* Data Comparison (Simplified for now) */}
+                            {/* Extracted Data Details */}
                             <div>
-                                <h4 className="text-sm font-bold text-gray-500 uppercase mb-3 text-center border-b pb-1">{t('references.fileDetail.compareData')}</h4>
+                                <h4 className="text-sm font-bold text-gray-500 uppercase mb-3 text-center border-b pb-1">Dữ liệu OCR</h4>
                                 <div className="space-y-4">
+                                    {/* Deal ID and Type */}
                                     <div className="grid grid-cols-2 gap-4 text-sm">
                                         <div>
                                             <label className="block text-gray-400 text-xs mb-0.5">{t('references.fileDetail.labels.dealId')}</label>
@@ -264,19 +302,72 @@ const FileDetail = () => {
                                         </div>
                                     </div>
 
+                                    {/* Customer Name */}
                                     <div>
                                         <label className="block text-gray-400 text-xs mb-0.5">{t('references.fileDetail.labels.customer')}</label>
                                         <div className="font-medium text-[#004A99]">{selectedDeal.customer}</div>
                                     </div>
 
+                                    {/* Spending Unit Details */}
+                                    {(selectedDeal as any).extracted_data?.spending_unit && Object.keys((selectedDeal as any).extracted_data.spending_unit).length > 0 && (
+                                        <div className="bg-blue-50 p-3 rounded border border-blue-200">
+                                            <h5 className="text-xs font-bold text-blue-700 mb-2">📤 Đơn vị chi tiền</h5>
+                                            <div className="space-y-1 text-xs">
+                                                <div className="flex justify-between">
+                                                    <span className="text-gray-600">Đơn vị đề nghị:</span>
+                                                    <span className="font-medium text-blue-900">
+                                                        {(selectedDeal as any).extracted_data.spending_unit.customer_name || 'N/A'}
+                                                    </span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span className="text-gray-600">Mục đích:</span>
+                                                    <span className="font-medium text-blue-900">
+                                                        {(selectedDeal as any).extracted_data.spending_unit.deal_type || 'N/A'}
+                                                    </span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span className="text-gray-600">Số tiền (VND):</span>
+                                                    <span className="font-bold text-blue-900">
+                                                        {(selectedDeal as any).extracted_data.spending_unit.amount
+                                                            ? new Intl.NumberFormat('vi-VN').format((selectedDeal as any).extracted_data.spending_unit.amount)
+                                                            : 'N/A'
+                                                        }
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Receiving Unit Details */}
+                                    {(selectedDeal as any).extracted_data?.receiving_unit && Object.keys((selectedDeal as any).extracted_data.receiving_unit).length > 0 && (
+                                        <div className="bg-green-50 p-3 rounded border border-green-200">
+                                            <h5 className="text-xs font-bold text-green-700 mb-2">📥 Đơn vị nhận tiền</h5>
+                                            <div className="space-y-1 text-xs">
+                                                <div className="flex justify-between">
+                                                    <span className="text-gray-600">Đơn vị bên nhận:</span>
+                                                    <span className="font-medium text-green-900">
+                                                        {(selectedDeal as any).extracted_data.receiving_unit.customer_name || 'N/A'}
+                                                    </span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span className="text-gray-600">Nội dung giao nhận:</span>
+                                                    <span className="font-medium text-green-900">
+                                                        {(selectedDeal as any).extracted_data.receiving_unit.deal_type || 'N/A'}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Amount Comparison */}
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="bg-gray-50 p-3 rounded border border-gray-200">
-                                            <label className="block text-gray-400 text-xs mb-1">{t('references.fileDetail.labels.coreBanking')}</label>
+                                            <label className="block text-gray-400 text-xs mb-1">Hệ thống Core</label>
                                             <div className="font-bold text-gray-800">{selectedDeal.amount_system.toLocaleString('vi-VN')}</div>
                                             <div className="text-[10px] text-gray-400">{selectedDeal.currency}</div>
                                         </div>
                                         <div className={`p-3 rounded border ${selectedDeal.amount_extract !== selectedDeal.amount_system ? 'bg-red-50 border-red-200' : 'bg-green-50 border-green-200'}`}>
-                                            <label className="block text-gray-400 text-xs mb-1">{t('references.fileDetail.labels.ocrExtract')}</label>
+                                            <label className="block text-gray-400 text-xs mb-1">OCR Trích xuất</label>
                                             <div className={`font-bold ${selectedDeal.amount_extract !== selectedDeal.amount_system ? 'text-red-600' : 'text-green-600'}`}>
                                                 {selectedDeal.amount_extract.toLocaleString('vi-VN')}
                                             </div>
@@ -289,30 +380,57 @@ const FileDetail = () => {
                             {/* Signatures */}
                             <div>
                                 <h4 className="text-sm font-bold text-gray-500 uppercase mb-3 border-b pb-1">{t('references.fileDetail.signatures')}</h4>
-                                <div className="space-y-2">
-                                    <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                                        <span className="text-sm text-gray-600">{t('references.fileDetail.labels.teller')}</span>
-                                        <div className="text-right">
-                                            <div className="text-sm font-medium">{selectedDeal.signatures.teller.name}</div>
-                                            <div className="text-[10px] text-green-600 flex items-center justify-end gap-1">
+                                <div className="space-y-3">
+                                    {/* Teller Signature */}
+                                    <div className="p-3 bg-gray-50 rounded border border-gray-200">
+                                        <div className="flex justify-between items-start mb-2">
+                                            <span className="text-sm font-medium text-gray-700">Giao dịch viên</span>
+                                            <div className="text-[10px] text-green-600 flex items-center gap-1">
                                                 <CheckCircle size={10} /> {t('references.fileDetail.status.valid')}
                                             </div>
                                         </div>
+                                        <div className="text-xs text-gray-600 mb-2">{selectedDeal.signatures.teller.name || 'N/A'}</div>
+                                        {(selectedDeal as any).teller_signature_path && (
+                                            <div className="bg-white p-2 rounded border border-gray-300">
+                                                <img
+                                                    src={`${import.meta.env.VITE_API_URL || 'http://192.168.0.200:8004'}/${(selectedDeal as any).teller_signature_path}`}
+                                                    alt="Teller Signature"
+                                                    className="w-full h-auto max-h-20 object-contain"
+                                                    onError={(e) => {
+                                                        (e.target as HTMLImageElement).style.display = 'none';
+                                                    }}
+                                                />
+                                            </div>
+                                        )}
                                     </div>
-                                    <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                                        <span className="text-sm text-gray-600">{t('references.fileDetail.labels.supervisor')}</span>
-                                        <div className="text-right">
-                                            <div className="text-sm font-medium">{selectedDeal.signatures.supervisor.name}</div>
+
+                                    {/* Supervisor Signature */}
+                                    <div className="p-3 bg-gray-50 rounded border border-gray-200">
+                                        <div className="flex justify-between items-start mb-2">
+                                            <span className="text-sm font-medium text-gray-700">Kiểm soát viên</span>
                                             {selectedDeal.signatures.supervisor.status === 'review' ? (
-                                                <div className="text-[10px] text-amber-600 flex items-center justify-end gap-1">
+                                                <div className="text-[10px] text-amber-600 flex items-center gap-1">
                                                     <AlertTriangle size={10} /> {t('references.fileDetail.status.lowConfidence')}
                                                 </div>
                                             ) : (
-                                                <div className="text-[10px] text-green-600 flex items-center justify-end gap-1">
+                                                <div className="text-[10px] text-green-600 flex items-center gap-1">
                                                     <CheckCircle size={10} /> {t('references.fileDetail.status.valid')}
                                                 </div>
                                             )}
                                         </div>
+                                        <div className="text-xs text-gray-600 mb-2">{selectedDeal.signatures.supervisor.name || 'N/A'}</div>
+                                        {(selectedDeal as any).supervisor_signature_path && (
+                                            <div className="bg-white p-2 rounded border border-gray-300">
+                                                <img
+                                                    src={`${import.meta.env.VITE_API_URL || 'http://192.168.0.200:8004'}/${(selectedDeal as any).supervisor_signature_path}`}
+                                                    alt="Supervisor Signature"
+                                                    className="w-full h-auto max-h-20 object-contain"
+                                                    onError={(e) => {
+                                                        (e.target as HTMLImageElement).style.display = 'none';
+                                                    }}
+                                                />
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -367,6 +485,9 @@ const FileDetail = () => {
                                             <p>Không thể tải PDF</p>
                                         </div>
                                     }
+                                    onLoadError={(error) => {
+                                        console.error('Error loading PDF:', error);
+                                    }}
                                 >
                                     {Array.from(new Array(numPages), (_, index) => (
                                         <Page

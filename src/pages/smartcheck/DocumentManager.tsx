@@ -193,7 +193,9 @@ const DocumentManager = () => {
         setIsStartUploading(false);
 
         // Start polling for processing files
-        startPolling();
+        setTimeout(() => {
+            startPolling();
+        }, 1000);
     };
 
     const handleCloseModal = () => {
