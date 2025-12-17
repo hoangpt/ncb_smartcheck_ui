@@ -455,7 +455,7 @@ const App = () => {
         return (
             <div className="h-[calc(100vh-64px)] flex flex-col bg-white">
                 {/* Workbench Header */}
-                <div className="h-14 border-b bg-white px-4 flex items-center justify-between shadow-sm z-10">
+                <div className="h-14 border-b bg-white px-4 flex items-center justify-between shadow-sm border-[#ddd]">
                     <div className="flex items-center gap-4">
                         <button onClick={() => setActiveTab('reconciliation')} className="p-2 hover:bg-gray-100 rounded-full text-gray-500">
                             <ArrowLeft size={20} />
@@ -481,7 +481,7 @@ const App = () => {
                 {/* Split View Content */}
                 <div className="flex-1 flex overflow-hidden">
                     {/* LEFT PANE: Document Viewer */}
-                    <div className="w-1/2 bg-gray-100 border-r flex flex-col relative">
+                    <div className="w-1/2 bg-gray-100 border-r flex flex-col relative border-[#ddd]">
                         <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-black/70 text-white px-3 py-1 rounded-full text-xs backdrop-blur-sm z-10 flex gap-4">
                             <span>Trang 5/44</span>
                             <div className="border-l border-gray-500 mx-2"></div>

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
 import { toastSuccess, toastError } from '../services/toast';
 import { useI18n } from '../i18n/I18nProvider';
+import ncbLogo from '../assets/ncb.png';
 
 const Login = () => {
     const [username, setUsername] = useState('');
@@ -52,11 +53,11 @@ const Login = () => {
             localStorage.setItem('username', response.username);
             localStorage.setItem('role', response.role);
 
-            toastSuccess(t('login.login') + ' thành công');
+            toastSuccess(t('login.toast.success'));
             navigate('/');
         } catch (err: any) {
             setError(err.message || t('login.error'));
-            toastError(t('login.login') + ' thất bại');
+            toastError(t('login.toast.failure'));
         } finally {
             setIsLoading(false);
         }
@@ -66,11 +67,11 @@ const Login = () => {
         <div className="min-h-screen bg-gradient-to-br from-[#003366] to-[#004A99] flex items-center justify-center p-4">
             <div className={`w-full max-w-md bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl overflow-hidden p-8 animate-fade-in ${error ? 'animate-shake' : ''}`}>
                 <div className="text-center mb-8">
-                    <div className="w-16 h-16 bg-white rounded-xl mx-auto flex items-center justify-center shadow-lg mb-4">
-                        <span className="text-3xl font-bold text-[#004A99]">NCB</span>
+                    <div className="mx-auto flex items-center justify-center mb-6">
+                        <img src={ncbLogo} alt="NCB Logo" className="h-16 w-auto object-contain transition-transform hover:scale-105 duration-300" />
                     </div>
-                    <h1 className="text-2xl font-bold text-white tracking-wide">Smart Doc Check</h1>
-                    <p className="text-blue-200 text-sm mt-1">Hệ thống Đối soát & Bóc tách Chứng từ</p>
+                    <h1 className="text-2xl font-bold text-white tracking-wide">{t('login.brandTitle')}</h1>
+                    <p className="text-blue-200 text-sm mt-1">{t('login.brandSubtitle')}</p>
                 </div>
 
                 <form onSubmit={handleLogin} className="space-y-6">
@@ -130,8 +131,8 @@ const Login = () => {
 
                 <div className="mt-8 text-center">
                     <p className="text-xs text-blue-300">
-                        &copy; 2025 NCB Bank. All rights reserved. <br />
-                        Version 1.0.0
+                        &copy; 2025 NCB Bank. {t('login.footer.rights')} <br />
+                        {t('login.footer.version', { version: '1.0.0' })}
                     </p>
                 </div>
             </div>

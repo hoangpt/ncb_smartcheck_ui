@@ -13,7 +13,7 @@ interface PageNode {
     pageNumber: number;
     dealId: string;
     type: string; // 'Orphan' | 'Deal'
-    status: 'ignored' | 'valid' | 'error';
+    status: 'ignored' | 'valid' | 'error' | 'review';
 }
 
 const SplittingEditor = ({ file, onSave, onClose }: SplittingEditorProps) => {
@@ -88,7 +88,7 @@ const SplittingEditor = ({ file, onSave, onClose }: SplittingEditorProps) => {
         let currentRangeEnd = -1;
         let currentDealId = '';
         let currentType = '';
-        let currentStatus: 'ignored' | 'valid' | 'error' = 'valid';
+        let currentStatus: 'ignored' | 'valid' | 'error' | 'review' = 'valid';
 
         const flushRange = () => {
             if (currentRangeStart !== -1) {

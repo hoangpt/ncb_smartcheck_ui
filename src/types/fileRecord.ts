@@ -2,7 +2,7 @@ export interface PageMapItem {
     range: string;
     deal_id: string;
     type: string;
-    status: 'ignored' | 'valid' | 'error';
+    status: 'ignored' | 'valid' | 'error' | 'review';
 }
 
 export interface FileRecord {

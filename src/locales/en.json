@@ -6,6 +6,10 @@
       "admin": "Administrator",
       "user": "User"
     },
+    "language": {
+      "english": "English",
+      "vietnamese": "Vietnamese"
+    },
     "logout": "Log out",
     "date": "Date",
     "cancel": "Cancel",
@@ -50,7 +54,8 @@
     },
     "recent": {
       "title": "Recent Status",
-      "updatedAgo": "Updated {minutes} minutes ago"
+      "updatedAgo": "Updated {minutes} minutes ago",
+      "completed": "Completed"
     },
     "stats": {
       "automationRate": "Automation Rate",
@@ -65,7 +70,17 @@
     "username": "Username",
     "password": "Password",
     "login": "Log in",
-    "error": "Invalid username or password"
+    "error": "Invalid username or password",
+    "brandTitle": "Smart Doc Check",
+    "brandSubtitle": "Document Reconciliation & Splitting System",
+    "toast": {
+      "success": "Logged in successfully",
+      "failure": "Login failed"
+    },
+    "footer": {
+      "rights": "All rights reserved.",
+      "version": "Version {version}"
+    }
   },
   "reconciliation": {
     "title": "Transaction Reconciliation",
@@ -116,7 +131,34 @@
   },
   "uploadModal": {
     "title": "Upload Scan File",
-    "processingTitle": "Processing in background..."
+    "processingTitle": "Processing in background...",
+    "subtitle": {
+      "processing": "Please wait or close to process in background",
+      "upload": "Select or drag & drop files to process"
+    },
+    "closeTitle": {
+      "processing": "Close and process in background",
+      "upload": "Close"
+    },
+    "stages": {
+      "uploadSuccess": "Upload successful",
+      "scanOcr": "Scanning / OCR",
+      "splitByDealId": "Split file by deal_id",
+      "structureData": "Structure data and save to DB",
+      "matchingScoring": "Match data and score documents"
+    },
+    "processing": {
+      "fileTitleWithOthers": "{name} and {count} other files",
+      "inProgress": "Running automation workflow ({progress}%)"
+    },
+    "dropzone": {
+      "title": "Click to select files or drag & drop here",
+      "subtitle": "Supports PDF, JPG, PNG (Max 50MB)"
+    },
+    "selectedFiles": "Selected {count} files",
+    "actions": {
+      "upload": "Upload"
+    }
   },
   "references": {
     "sidebar": {
@@ -249,6 +291,38 @@
       "systemAmount": "System Amount",
       "customerUnit": "Customer / Unit",
       "signatureMatch": "Signature Matching",
+      "notFound": {
+        "title": "Deal not found",
+        "subtitle": "Deal {id} does not exist or has been deleted.",
+        "backToList": "Back to list"
+      },
+      "fileMeta": "File: {file} • Pages: {pages}",
+      "actions": {
+        "resplitPages": "Resplit pages",
+        "approveCase": "Approve case"
+      },
+      "viewer": {
+        "pageIndicator": "Page {current}/{total}",
+        "extractedAmount": "Extracted Amount",
+        "tellerSignature": "Teller signature",
+        "supervisorSignature": "Supervisor signature"
+      },
+      "dealIdLabel": "Deal ID",
+      "systemRefLabel": "System Ref",
+      "ocrLowConfidence": "Low OCR confidence ({percent}%)",
+      "adjust": "Adjust",
+      "signature": {
+        "tellerLabel": "1. Teller:",
+        "supervisorLabel": "2. Supervisor:",
+        "matchRate": "Match {percent}%",
+        "cutFromDocument": "Cropped from document",
+        "systemSample": "System sample",
+        "needsConfirm": "Needs confirmation",
+        "actions": {
+          "accept": "Accept",
+          "reject": "Reject"
+        }
+      },
       "reportIssue": "Report Issue",
       "skip": "Skip",
       "saveAndContinue": "Save & Continue"
