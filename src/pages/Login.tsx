@@ -53,11 +53,11 @@ const Login = () => {
             localStorage.setItem('username', response.username);
             localStorage.setItem('role', response.role);
 
-            toastSuccess(t('login.login') + ' thành công');
+            toastSuccess(t('login.toast.success'));
             navigate('/');
         } catch (err: any) {
             setError(err.message || t('login.error'));
-            toastError(t('login.login') + ' thất bại');
+            toastError(t('login.toast.failure'));
         } finally {
             setIsLoading(false);
         }
@@ -70,8 +70,8 @@ const Login = () => {
                     <div className="mx-auto flex items-center justify-center mb-6">
                         <img src={ncbLogo} alt="NCB Logo" className="h-16 w-auto object-contain transition-transform hover:scale-105 duration-300" />
                     </div>
-                    <h1 className="text-2xl font-bold text-white tracking-wide">Smart Doc Check</h1>
-                    <p className="text-blue-200 text-sm mt-1">Hệ thống Đối soát & Bóc tách Chứng từ</p>
+                    <h1 className="text-2xl font-bold text-white tracking-wide">{t('login.brandTitle')}</h1>
+                    <p className="text-blue-200 text-sm mt-1">{t('login.brandSubtitle')}</p>
                 </div>
 
                 <form onSubmit={handleLogin} className="space-y-6">
@@ -131,8 +131,8 @@ const Login = () => {
 
                 <div className="mt-8 text-center">
                     <p className="text-xs text-blue-300">
-                        &copy; 2025 NCB Bank. All rights reserved. <br />
-                        Version 1.0.0
+                        &copy; 2025 NCB Bank. {t('login.footer.rights')} <br />
+                        {t('login.footer.version', { version: '1.0.0' })}
                     </p>
                 </div>
             </div>

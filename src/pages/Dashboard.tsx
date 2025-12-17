@@ -87,7 +87,7 @@ const Dashboard = () => {
                                     <p className="text-sm font-bold text-gray-700">Lô chứng từ #20251018_{item.toString().padStart(2, '0')}</p>
                                     <p className="text-xs text-gray-500">{t('dashboard.recent.updatedAgo', { minutes: 15 })}</p>
                                 </div>
-                                <span className="text-xs font-semibold bg-green-100 text-green-700 px-2 py-1 rounded-full">Completed</span>
+                                <span className="text-xs font-semibold bg-green-100 text-green-700 px-2 py-1 rounded-full">{t('dashboard.recent.completed')}</span>
                             </div>
                         ))}
                     </div>

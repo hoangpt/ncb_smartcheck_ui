@@ -10,14 +10,6 @@ interface UploadModalProps {
     processingFiles?: FileRecord[]; // Files currently being processed
 }
 
-const STAGES = [
-    "Upload thành công",
-    "Tiến hành scan / ocr",
-    "Split file theo các deal_id",
-    "Structure các dữ liệu và lưu vào db",
-    "Matching data và chấm điểm chứng từ"
-];
-
 const UploadModal = ({ isOpen, onClose, onUpload, processingFiles = [] }: UploadModalProps) => {
     const { t } = useI18n();
     const [files, setFiles] = useState<File[]>([]);
@@ -95,6 +87,21 @@ const UploadModal = ({ isOpen, onClose, onUpload, processingFiles = [] }: Upload
 
     const currentStageIndex = isProcessing ? getStageIndex(processingFiles[0].process_progress) : -1;
 
+    const stages = [
+        t('uploadModal.stages.uploadSuccess'),
+        t('uploadModal.stages.scanOcr'),
+        t('uploadModal.stages.splitByDealId'),
+        t('uploadModal.stages.structureData'),
+        t('uploadModal.stages.matchingScoring')
+    ];
+
+    const processingTitle = (() => {
+        const firstName = processingFiles[0]?.name ?? '';
+        const otherCount = Math.max(0, processingFiles.length - 1);
+        if (otherCount <= 0) return firstName;
+        return t('uploadModal.processing.fileTitleWithOthers', { name: firstName, count: otherCount });
+    })();
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
             <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh] animate-scale-in">
@@ -105,13 +112,13 @@ const UploadModal = ({ isOpen, onClose, onUpload, processingFiles = [] }: Upload
                             {isProcessing ? t('uploadModal.processingTitle') : t('uploadModal.title')}
                         </h2>
                         <p className="text-sm text-gray-500 mt-1">
-                            {isProcessing ? 'Vui lòng chờ hoặc đóng để xử lý ngầm' : 'Chọn hoặc kéo thả file cần xử lý'}
+                            {isProcessing ? t('uploadModal.subtitle.processing') : t('uploadModal.subtitle.upload')}
                         </p>
                     </div>
                     <button
                         onClick={onClose}
                         className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
-                        title={isProcessing ? "Đóng và chạy ngầm" : "Đóng"}
+                        title={isProcessing ? t('uploadModal.closeTitle.processing') : t('uploadModal.closeTitle.upload')}
                     >
                         {isProcessing ? <Minimize2 size={24} /> : <X size={24} />}
                     </button>
@@ -127,13 +134,13 @@ const UploadModal = ({ isOpen, onClose, onUpload, processingFiles = [] }: Upload
                                     <FileText size={32} />
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-bold text-gray-800">{processingFiles[0]?.name} {processingFiles.length > 1 ? `và ${processingFiles.length - 1} file khác` : ''}</h3>
-                                    <p className="text-sm text-gray-500">Đang thực hiện quy trình tự động hóa ({processingFiles[0].process_progress}%)</p>
+                                    <h3 className="text-lg font-bold text-gray-800">{processingTitle}</h3>
+                                    <p className="text-sm text-gray-500">{t('uploadModal.processing.inProgress', { progress: processingFiles[0].process_progress })}</p>
                                 </div>
                             </div>
 
                             <div className="space-y-4">
-                                {STAGES.map((stage, index) => {
+                                {stages.map((stage, index) => {
                                     const isCompleted = currentStageIndex > index;
                                     const isCurrent = currentStageIndex === index;
 
@@ -192,10 +199,10 @@ const UploadModal = ({ isOpen, onClose, onUpload, processingFiles = [] }: Upload
                                     </div>
                                     <div className="space-y-1">
                                         <p className="text-lg font-semibold text-gray-700">
-                                            Click để chọn file hoặc kéo thả vào đây
+                                            {t('uploadModal.dropzone.title')}
                                         </p>
                                         <p className="text-sm text-gray-400">
-                                            Hỗ trợ PDF, JPG, PNG (Tối đa 50MB)
+                                            {t('uploadModal.dropzone.subtitle')}
                                         </p>
                                     </div>
                                 </div>
@@ -206,7 +213,7 @@ const UploadModal = ({ isOpen, onClose, onUpload, processingFiles = [] }: Upload
                                 <div className="mt-6 space-y-3">
                                     <h4 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
                                         <CheckCircle size={16} className="text-[#004A99]" />
-                                        Đã chọn {files.length} file
+                                        {t('uploadModal.selectedFiles', { count: files.length })}
                                     </h4>
                                     <div className="space-y-2 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
                                         {files.map((file, idx) => (
@@ -242,7 +249,7 @@ const UploadModal = ({ isOpen, onClose, onUpload, processingFiles = [] }: Upload
                             onClick={onClose}
                             className="px-5 py-2.5 rounded-lg text-gray-600 font-medium hover:bg-gray-200 transition-colors"
                         >
-                            Hủy bỏ
+                            {t('common.cancel')}
                         </button>
                         <button
                             onClick={handleUploadClick}
@@ -254,7 +261,7 @@ const UploadModal = ({ isOpen, onClose, onUpload, processingFiles = [] }: Upload
                                 }`}
                         >
                             <Upload size={18} />
-                            Upload {files.length > 0 ? `(${files.length})` : ''}
+                            {t('uploadModal.actions.upload')} {files.length > 0 ? `(${files.length})` : ''}
                         </button>
                     </div>
                 )}

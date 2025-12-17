@@ -6,6 +6,10 @@
       "admin": "Quản trị viên",
       "user": "Người dùng"
     },
+    "language": {
+      "english": "English",
+      "vietnamese": "Tiếng Việt"
+    },
     "logout": "Đăng xuất",
     "date": "Ngày",
     "cancel": "Hủy",
@@ -13,7 +17,34 @@
   },
   "uploadModal": {
     "title": "Upload File Scan",
-    "processingTitle": "Đang xử lý hồ sơ..."
+    "processingTitle": "Đang xử lý hồ sơ...",
+    "subtitle": {
+      "processing": "Vui lòng chờ hoặc đóng để xử lý ngầm",
+      "upload": "Chọn hoặc kéo thả file cần xử lý"
+    },
+    "closeTitle": {
+      "processing": "Đóng và chạy ngầm",
+      "upload": "Đóng"
+    },
+    "stages": {
+      "uploadSuccess": "Upload thành công",
+      "scanOcr": "Tiến hành scan / ocr",
+      "splitByDealId": "Split file theo các deal_id",
+      "structureData": "Structure các dữ liệu và lưu vào db",
+      "matchingScoring": "Matching data và chấm điểm chứng từ"
+    },
+    "processing": {
+      "fileTitleWithOthers": "{name} và {count} file khác",
+      "inProgress": "Đang thực hiện quy trình tự động hóa ({progress}%)"
+    },
+    "dropzone": {
+      "title": "Click để chọn file hoặc kéo thả vào đây",
+      "subtitle": "Hỗ trợ PDF, JPG, PNG (Tối đa 50MB)"
+    },
+    "selectedFiles": "Đã chọn {count} file",
+    "actions": {
+      "upload": "Upload"
+    }
   },
   "status": {
     "matched": "Khớp đúng",
@@ -61,14 +92,25 @@
     },
     "recent": {
       "title": "Trạng thái Gần đây",
-      "updatedAgo": "Vừa cập nhật {minutes} phút trước"
+      "updatedAgo": "Vừa cập nhật {minutes} phút trước",
+      "completed": "Hoàn thành"
     }    
   },
   "login": {
     "username": "Tên đăng nhập",
     "password": "Mật khẩu",
     "login": "Đăng nhập",
-    "error": "Tên đăng nhập hoặc mật khẩu không chính xác"
+    "error": "Tên đăng nhập hoặc mật khẩu không chính xác",
+    "brandTitle": "Smart Doc Check",
+    "brandSubtitle": "Hệ thống Đối soát & Bóc tách Chứng từ",
+    "toast": {
+      "success": "Đăng nhập thành công",
+      "failure": "Đăng nhập thất bại"
+    },
+    "footer": {
+      "rights": "Bảo lưu mọi quyền.",
+      "version": "Phiên bản {version}"
+    }
   },
   "reconciliation": {
     "title": "Đối soát giao dịch",
@@ -246,9 +288,41 @@
       "ocrData": "Dữ liệu trích xuất (OCR)",
       "coreData": "Dữ liệu hệ thống (Core)",
       "amountVND": "Số tiền (VND)",
-      "systemAmount": "System Amount",
+      "systemAmount": "Số tiền hệ thống",
       "customerUnit": "Khách hàng / Đơn vị",
       "signatureMatch": "Đối chiếu chữ ký",
+      "notFound": {
+        "title": "Không tìm thấy giao dịch",
+        "subtitle": "Giao dịch {id} không tồn tại hoặc đã bị xóa.",
+        "backToList": "Quay lại danh sách"
+      },
+      "fileMeta": "File: {file} • Trang: {pages}",
+      "actions": {
+        "resplitPages": "Cắt lại trang",
+        "approveCase": "Duyệt hồ sơ"
+      },
+      "viewer": {
+        "pageIndicator": "Trang {current}/{total}",
+        "extractedAmount": "Số tiền trích xuất",
+        "tellerSignature": "Chữ ký GDV",
+        "supervisorSignature": "Chữ ký KSV"
+      },
+      "dealIdLabel": "Deal ID",
+      "systemRefLabel": "System Ref",
+      "ocrLowConfidence": "OCR độ tin cậy thấp ({percent}%)",
+      "adjust": "Điều chỉnh",
+      "signature": {
+        "tellerLabel": "1. Giao dịch viên:",
+        "supervisorLabel": "2. Kiểm soát viên:",
+        "matchRate": "Khớp {percent}%",
+        "cutFromDocument": "Cắt từ chứng từ",
+        "systemSample": "Mẫu trên hệ thống",
+        "needsConfirm": "Cần xác nhận",
+        "actions": {
+          "accept": "Chấp nhận",
+          "reject": "Từ chối"
+        }
+      },
       "reportIssue": "Báo cáo sai sót",
       "skip": "Bỏ qua",
       "saveAndContinue": "Lưu & Tiếp tục"

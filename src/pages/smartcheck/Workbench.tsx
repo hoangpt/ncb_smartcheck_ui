@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, Scissors, Check, ZoomOut, ZoomIn,
@@ -7,11 +8,15 @@ import { MOCK_DEALS } from '../../data/mock';
 import type { Deal } from '../../types';
 import StatusBadge from '../../components/StatusBadge';
 import { useI18n } from '../../i18n/I18nProvider';
+import * as Tooltip from '@radix-ui/react-tooltip';
 
 const Workbench = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const { t } = useI18n();
+
+    const [tellerDecision, setTellerDecision] = useState<'accept' | 'reject' | null>(null);
+    const [supervisorDecision, setSupervisorDecision] = useState<'accept' | 'reject' | null>(null);
 
     // Find the deal from mock data
     const selectedDeal = MOCK_DEALS.find((deal: Deal) => deal.id === id);
@@ -19,10 +24,10 @@ const Workbench = () => {
     if (!selectedDeal) {
         return (
             <div className="p-8 text-center">
-                <h2 className="text-xl font-bold text-gray-800">Không tìm thấy giao dịch</h2>
-                <p className="text-gray-500 mb-4">Giao dịch {id} không tồn tại hoặc đã bị xóa.</p>
+                <h2 className="text-xl font-bold text-gray-800">{t('references.workbench.notFound.title')}</h2>
+                <p className="text-gray-500 mb-4">{t('references.workbench.notFound.subtitle', { id: id ?? '' })}</p>
                 <button onClick={() => navigate('/reconciliation')} className="text-[#004A99] hover:underline">
-                    Quay lại danh sách
+                    {t('references.workbench.notFound.backToList')}
                 </button>
             </div>
         );
@@ -32,9 +37,10 @@ const Workbench = () => {
     const isAmountMismatch = selectedDeal.amount_system !== selectedDeal.amount_extract;
 
     return (
-        <div className="h-[calc(100vh-64px)] flex flex-col bg-white animate-fade-in">
+        <Tooltip.Provider delayDuration={200}>
+            <div className="h-[calc(100vh-64px)] flex flex-col bg-white animate-fade-in">
             {/* Workbench Header */}
-            <div className="h-14 border-b bg-white px-4 flex items-center justify-between shadow-sm z-10">
+            <div className="h-14 border-b bg-white px-4 flex items-center justify-between shadow-sm border-[#ddd]">
                 <div className="flex items-center gap-4">
                     <button onClick={() => navigate('/reconciliation')} className="p-2 hover:bg-gray-100 rounded-full text-gray-500 transition-colors">
                         <ArrowLeft size={20} />
@@ -44,15 +50,15 @@ const Workbench = () => {
                             <span className="font-bold text-gray-800 text-lg font-mono">{selectedDeal.id}</span>
                             <StatusBadge status={selectedDeal.status} score={selectedDeal.score} />
                         </div>
-                        <p className="text-xs text-gray-500">File: {selectedDeal.source_file} • Trang: {selectedDeal.pages}</p>
+                        <p className="text-xs text-gray-500">{t('references.workbench.fileMeta', { file: selectedDeal.source_file, pages: selectedDeal.pages })}</p>
                     </div>
                 </div>
                 <div className="flex gap-2">
                     <button className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-sm font-medium transition-colors">
-                        <Scissors size={16} /> Cắt lại trang
+                        <Scissors size={16} /> {t('references.workbench.actions.resplitPages')}
                     </button>
                     <button className="flex items-center gap-2 px-4 py-1.5 bg-[#004A99] hover:bg-blue-800 text-white rounded text-sm font-medium transition-colors shadow">
-                        <Check size={16} /> Duyệt hồ sơ
+                        <Check size={16} /> {t('references.workbench.actions.approveCase')}
                     </button>
                 </div>
             </div>
@@ -60,9 +66,9 @@ const Workbench = () => {
             {/* Split View Content */}
             <div className="flex-1 flex overflow-hidden">
                 {/* LEFT PANE: Document Viewer */}
-                <div className="w-1/2 bg-gray-100 border-r flex flex-col relative">
+                <div className="w-1/2 bg-gray-100 border-r flex flex-col relative border-[#ddd]">
                     <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-black/70 text-white px-3 py-1 rounded-full text-xs backdrop-blur-sm z-10 flex gap-4">
-                        <span>Trang {selectedDeal.pages.split('-')[0]}/44</span>
+                        <span>{t('references.workbench.viewer.pageIndicator', { current: selectedDeal.pages.split('-')[0], total: 44 })}</span>
                         <div className="border-l border-gray-500 mx-2"></div>
                         <ZoomOut size={14} className="cursor-pointer hover:text-blue-300" />
                         <ZoomIn size={14} className="cursor-pointer hover:text-blue-300" />
@@ -113,12 +119,12 @@ const Workbench = () => {
                             </div>
 
                             {/* Overlays (Highlights) */}
-                            <div className="absolute top-[280px] right-[40px] w-[120px] h-[30px] border-2 border-green-500 bg-green-500/10 rounded cursor-pointer" title="Extracted Amount"></div>
+                            <div className="absolute top-[280px] right-[40px] w-[120px] h-[30px] border-2 border-green-500 bg-green-500/10 rounded cursor-pointer" title={t('references.workbench.viewer.extractedAmount')}></div>
                             <div className="absolute top-[500px] left-[40px] w-[150px] h-[100px] border-2 border-blue-500 bg-blue-500/10 rounded cursor-pointer group">
-                                <span className="bg-blue-500 text-white text-[10px] px-1 absolute -top-4 left-0 hidden group-hover:block whitespace-nowrap z-20 shadow">Chữ ký GDV</span>
+                                <span className="bg-blue-500 text-white text-[10px] px-1 absolute -top-4 left-0 hidden group-hover:block whitespace-nowrap z-20 shadow">{t('references.workbench.viewer.tellerSignature')}</span>
                             </div>
                             <div className="absolute top-[500px] right-[40px] w-[150px] h-[100px] border-2 border-blue-500 bg-blue-500/10 rounded cursor-pointer group">
-                                <span className="bg-blue-500 text-white text-[10px] px-1 absolute -top-4 left-0 hidden group-hover:block whitespace-nowrap z-20 shadow">Chữ ký KSV</span>
+                                <span className="bg-blue-500 text-white text-[10px] px-1 absolute -top-4 left-0 hidden group-hover:block whitespace-nowrap z-20 shadow">{t('references.workbench.viewer.supervisorSignature')}</span>
                             </div>
                         </div>
                     </div>
@@ -139,12 +145,12 @@ const Workbench = () => {
 
                             {/* Deal ID */}
                             <div className="bg-gray-50 p-3 rounded border border-gray-200">
-                                <label className="text-xs text-gray-500 block mb-1">Deal ID</label>
+                                <label className="text-xs text-gray-500 block mb-1">{t('references.workbench.dealIdLabel')}</label>
                                 <div className="font-mono font-medium truncate" title={selectedDeal.id}>{selectedDeal.id}</div>
                             </div>
                             <div className="bg-blue-50 p-3 rounded border border-blue-100 flex justify-between items-center">
                                 <div className="overflow-hidden">
-                                    <label className="text-xs text-blue-500 block mb-1">System Ref</label>
+                                    <label className="text-xs text-blue-500 block mb-1">{t('references.workbench.systemRefLabel')}</label>
                                     <div className="font-mono font-medium truncate" title={selectedDeal.id}>{selectedDeal.id}</div>
                                 </div>
                                 <CheckCircle size={16} className="text-green-600 flex-shrink-0" />
@@ -158,7 +164,11 @@ const Workbench = () => {
                                     className={`w-full bg-transparent font-mono font-bold text-lg outline-none ${isAmountMismatch ? 'text-red-600' : 'text-gray-800'}`}
                                     defaultValue={new Intl.NumberFormat('vi-VN').format(selectedDeal.amount_extract)}
                                 />
-                                {isAmountMismatch && <p className="text-[10px] text-red-500 mt-1 flex items-center gap-1"><AlertTriangle size={10} /> OCR độ tin cậy thấp (65%)</p>}
+                                {isAmountMismatch && (
+                                    <p className="text-[10px] text-red-500 mt-1 flex items-center gap-1">
+                                        <AlertTriangle size={10} /> {t('references.workbench.ocrLowConfidence', { percent: 65 })}
+                                    </p>
+                                )}
                             </div>
                             <div className={`p-3 rounded border flex justify-between items-center ${isAmountMismatch ? 'bg-red-50 border-red-200' : 'bg-blue-50 border-blue-100'}`}>
                                 <div>
@@ -169,7 +179,7 @@ const Workbench = () => {
                                 </div>
                                 {isAmountMismatch ? (
                                     <button className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded border border-red-200 font-medium hover:bg-red-200">
-                                        Điều chỉnh
+                                        {t('references.workbench.adjust')}
                                     </button>
                                 ) : (
                                     <CheckCircle size={16} className="text-green-600" />
@@ -183,54 +193,97 @@ const Workbench = () => {
                             </div>
                         </div>
 
-                        <div className="border-t my-8"></div>
-
                         {/* Signature Verification Section */}
-                        <h3 className="text-[#004A99] font-bold mb-4 flex items-center gap-2 border-b pb-2">
+                        <h3 className="mt-8 text-[#004A99] font-bold mb-4 flex items-center gap-2 border-b pb-2">
                             <Scissors size={18} /> {t('references.workbench.signatureMatch')}
                         </h3>
 
                         <div className="space-y-4">
                             {/* Signature 1 */}
-                            <div className="border rounded-lg p-4 bg-white shadow-sm">
+                            <div className="border rounded-lg p-4 bg-white shadow-sm border-[#ddd]">
                                 <div className="flex justify-between mb-3">
-                                    <span className="text-sm font-semibold text-gray-700">1. Giao dịch viên: <span className="text-blue-600">{selectedDeal.signatures.teller.name}</span></span>
-                                    <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full border border-green-200">Khớp 99%</span>
+                                    <span className="text-sm font-semibold text-gray-700">{t('references.workbench.signature.tellerLabel')} <span className="text-blue-600">{selectedDeal.signatures.teller.name}</span></span>
+                                    <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full border border-green-200">{t('references.workbench.signature.matchRate', { percent: 99 })}</span>
                                 </div>
                                 <div className="flex gap-4 items-center">
                                     <div className="flex-1 text-center">
-                                        <p className="text-xs text-gray-400 mb-1">Cắt từ chứng từ</p>
+                                        <p className="text-xs text-gray-400 mb-1">{t('references.workbench.signature.cutFromDocument')}</p>
                                         <div className="h-20 bg-gray-50 border rounded flex items-center justify-center overflow-hidden">
                                             {/* Simulated Signature Image */}
                                             <span className="font-script text-2xl italic text-blue-900">Ha</span>
                                         </div>
                                     </div>
                                     <div className="flex-1 text-center">
-                                        <p className="text-xs text-gray-400 mb-1">Mẫu trên hệ thống</p>
+                                        <p className="text-xs text-gray-400 mb-1">{t('references.workbench.signature.systemSample')}</p>
                                         <div className="h-20 bg-blue-50 border border-blue-100 rounded flex items-center justify-center overflow-hidden">
                                             <span className="font-script text-2xl italic text-blue-900">Ha</span>
                                         </div>
                                     </div>
                                     <div className="flex flex-col gap-2">
-                                        <button className="p-2 bg-green-50 text-green-600 rounded hover:bg-green-100 border border-green-200 active:scale-95 transition-transform"><Check size={18} /></button>
-                                        <button className="p-2 bg-gray-50 text-gray-400 rounded hover:bg-gray-100 border active:scale-95 transition-transform"><X size={18} /></button>
+                                        <Tooltip.Root>
+                                            <Tooltip.Trigger asChild>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setTellerDecision((prev) => (prev === 'accept' ? null : 'accept'))}
+                                                    className={`p-2 rounded border border-green-200 active:scale-95 transition-transform ${tellerDecision === 'accept' ? 'bg-green-200 text-green-700' : 'bg-white text-green-600 hover:bg-green-50'}`}
+                                                    aria-label={t('references.workbench.signature.actions.accept')}
+                                                >
+                                                    <Check size={18} />
+                                                </button>
+                                            </Tooltip.Trigger>
+                                            <Tooltip.Portal>
+                                                <Tooltip.Content
+                                                    side="left"
+                                                    align="center"
+                                                    sideOffset={8}
+                                                    className="z-50 rounded bg-gray-900 px-2 py-1 text-xs text-white shadow"
+                                                >
+                                                    {t('references.workbench.signature.actions.accept')}
+                                                    <Tooltip.Arrow className="fill-gray-900" />
+                                                </Tooltip.Content>
+                                            </Tooltip.Portal>
+                                        </Tooltip.Root>
+
+                                        <Tooltip.Root>
+                                            <Tooltip.Trigger asChild>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setTellerDecision((prev) => (prev === 'reject' ? null : 'reject'))}
+                                                    className={`p-2 rounded border border-red-200 active:scale-95 transition-transform ${tellerDecision === 'reject' ? 'bg-red-200 text-red-700' : 'bg-white text-red-500 hover:bg-red-50'}`}
+                                                    aria-label={t('references.workbench.signature.actions.reject')}
+                                                >
+                                                    <X size={18} />
+                                                </button>
+                                            </Tooltip.Trigger>
+                                            <Tooltip.Portal>
+                                                <Tooltip.Content
+                                                    side="left"
+                                                    align="center"
+                                                    sideOffset={8}
+                                                    className="z-50 rounded bg-gray-900 px-2 py-1 text-xs text-white shadow"
+                                                >
+                                                    {t('references.workbench.signature.actions.reject')}
+                                                    <Tooltip.Arrow className="fill-gray-900" />
+                                                </Tooltip.Content>
+                                            </Tooltip.Portal>
+                                        </Tooltip.Root>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Signature 2 */}
-                            <div className={`border rounded-lg p-4 shadow-sm transition-colors ${selectedDeal.signatures.supervisor.status === 'review' ? 'border-amber-300 bg-amber-50/50' : 'bg-white'}`}>
+                            <div className={`border rounded-lg p-4 shadow-sm transition-colors border-[#ddd] ${selectedDeal.signatures.supervisor.status === 'review' ? 'border-amber-300 bg-amber-50/50' : 'bg-white'}`}>
                                 <div className="flex justify-between mb-3">
-                                    <span className="text-sm font-semibold text-gray-700">2. Kiểm soát viên: <span className="text-blue-600">{selectedDeal.signatures.supervisor.name}</span></span>
+                                    <span className="text-sm font-semibold text-gray-700">{t('references.workbench.signature.supervisorLabel')} <span className="text-blue-600">{selectedDeal.signatures.supervisor.name}</span></span>
                                     {selectedDeal.signatures.supervisor.status === 'review' && (
                                         <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full border border-amber-200 flex items-center gap-1 animate-pulse">
-                                            <AlertTriangle size={10} /> Cần xác nhận
+                                            <AlertTriangle size={10} /> {t('references.workbench.signature.needsConfirm')}
                                         </span>
                                     )}
                                 </div>
                                 <div className="flex gap-4 items-center">
                                     <div className="flex-1 text-center">
-                                        <p className="text-xs text-gray-400 mb-1">Cắt từ chứng từ</p>
+                                        <p className="text-xs text-gray-400 mb-1">{t('references.workbench.signature.cutFromDocument')}</p>
                                         <div className="h-20 bg-white border rounded flex items-center justify-center relative overflow-hidden">
                                             <span className="font-script text-2xl italic text-blue-900 opacity-60">Huong</span>
                                             {/* Noise simulation */}
@@ -238,14 +291,59 @@ const Workbench = () => {
                                         </div>
                                     </div>
                                     <div className="flex-1 text-center">
-                                        <p className="text-xs text-gray-400 mb-1">Mẫu trên hệ thống</p>
+                                        <p className="text-xs text-gray-400 mb-1">{t('references.workbench.signature.systemSample')}</p>
                                         <div className="h-20 bg-blue-50 border border-blue-100 rounded flex items-center justify-center overflow-hidden">
                                             <span className="font-script text-2xl italic text-blue-900">Huong</span>
                                         </div>
                                     </div>
                                     <div className="flex flex-col gap-2">
-                                        <button className="p-2 bg-white text-green-600 rounded hover:bg-green-50 border border-green-200 shadow-sm active:scale-95 transition-transform"><Check size={18} /></button>
-                                        <button className="p-2 bg-white text-red-500 rounded hover:bg-red-50 border border-red-200 shadow-sm active:scale-95 transition-transform"><X size={18} /></button>
+                                        <Tooltip.Root>
+                                            <Tooltip.Trigger asChild>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setSupervisorDecision((prev) => (prev === 'accept' ? null : 'accept'))}
+                                                    className={`p-2 rounded border border-green-200 shadow-sm active:scale-95 transition-transform ${supervisorDecision === 'accept' ? 'bg-green-200 text-green-700' : 'bg-white text-green-600 hover:bg-green-50'}`}
+                                                    aria-label={t('references.workbench.signature.actions.accept')}
+                                                >
+                                                    <Check size={18} />
+                                                </button>
+                                            </Tooltip.Trigger>
+                                            <Tooltip.Portal>
+                                                <Tooltip.Content
+                                                    side="left"
+                                                    align="center"
+                                                    sideOffset={8}
+                                                    className="z-50 rounded bg-gray-900 px-2 py-1 text-xs text-white shadow"
+                                                >
+                                                    {t('references.workbench.signature.actions.accept')}
+                                                    <Tooltip.Arrow className="fill-gray-900" />
+                                                </Tooltip.Content>
+                                            </Tooltip.Portal>
+                                        </Tooltip.Root>
+
+                                        <Tooltip.Root>
+                                            <Tooltip.Trigger asChild>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setSupervisorDecision((prev) => (prev === 'reject' ? null : 'reject'))}
+                                                    className={`p-2 rounded border border-red-200 shadow-sm active:scale-95 transition-transform ${supervisorDecision === 'reject' ? 'bg-red-200 text-red-700' : 'bg-white text-red-500 hover:bg-red-50'}`}
+                                                    aria-label={t('references.workbench.signature.actions.reject')}
+                                                >
+                                                    <X size={18} />
+                                                </button>
+                                            </Tooltip.Trigger>
+                                            <Tooltip.Portal>
+                                                <Tooltip.Content
+                                                    side="left"
+                                                    align="center"
+                                                    sideOffset={8}
+                                                    className="z-50 rounded bg-gray-900 px-2 py-1 text-xs text-white shadow"
+                                                >
+                                                    {t('references.workbench.signature.actions.reject')}
+                                                    <Tooltip.Arrow className="fill-gray-900" />
+                                                </Tooltip.Content>
+                                            </Tooltip.Portal>
+                                        </Tooltip.Root>
                                     </div>
                                 </div>
                             </div>
@@ -266,7 +364,8 @@ const Workbench = () => {
                     </div>
                 </div>
             </div>
-        </div>
+            </div>
+        </Tooltip.Provider>
     );
 };
 
