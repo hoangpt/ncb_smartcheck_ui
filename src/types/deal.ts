@@ -3,6 +3,7 @@ export interface Signature {
     name: string;
 }
 
+export type TDealStatus = 'matched' | 'mismatch' | 'review' | 'processed' | 'processing' | 'error';
 export interface Deal {
     // Backend identifiers
     id: string; // UI-friendly id (we use deal_id here)
@@ -36,7 +37,7 @@ export interface Deal {
     currency: string;
 
     // Status / scoring
-    status: 'matched' | 'mismatch' | 'review' | 'processed' | 'pending';
+    status: TDealStatus;
     score: number;
     timestamp: string;
     confidence_score?: number | null;

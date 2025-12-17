@@ -7,42 +7,40 @@ import {
 import type { FileRecord } from '../../types';
 import UploadModal from '../../components/UploadModal';
 import SplittingEditor from '../../components/SplittingEditor';
-import { format, parse } from 'date-fns';
+import { format } from 'date-fns';
 import { useI18n } from '../../i18n/I18nProvider';
 import { apiService } from '../../services/api';
 import { toastSuccess, toastError } from '../../services/toast';
 
 // Timings in milliseconds
-const TIMING = {
-    UPLOAD: 15000,
-    SCAN: 60000,
-    SPLIT: 120000,
-    STRUCTURE: 120000,
-    MATCHING: 195000
-};
+// const TIMING = {
+//     UPLOAD: 15000,
+//     SCAN: 60000,
+//     SPLIT: 120000,
+//     STRUCTURE: 120000,
+//     MATCHING: 195000
+// };
 
 // Cumulative time points for easier calculation
-const TIME_POINTS = {
-    UPLOAD_DONE: TIMING.UPLOAD,
-    SCAN_DONE: TIMING.UPLOAD + TIMING.SCAN,
-    SPLIT_DONE: TIMING.UPLOAD + TIMING.SCAN + TIMING.SPLIT,
-    STRUCTURE_DONE: TIMING.UPLOAD + TIMING.SCAN + TIMING.SPLIT + TIMING.STRUCTURE,
-    MATCHING_DONE: TIMING.UPLOAD + TIMING.SCAN + TIMING.SPLIT + TIMING.STRUCTURE + TIMING.MATCHING,
-};
+// const TIME_POINTS = {
+//     UPLOAD_DONE: TIMING.UPLOAD,
+//     SCAN_DONE: TIMING.UPLOAD + TIMING.SCAN,
+//     SPLIT_DONE: TIMING.UPLOAD + TIMING.SCAN + TIMING.SPLIT,
+//     STRUCTURE_DONE: TIMING.UPLOAD + TIMING.SCAN + TIMING.SPLIT + TIMING.STRUCTURE,
+//     MATCHING_DONE: TIMING.UPLOAD + TIMING.SCAN + TIMING.SPLIT + TIMING.STRUCTURE + TIMING.MATCHING,
+// };
 
 const DocumentManager = () => {
     const navigate = useNavigate();
     const { t } = useI18n();
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
     const [files, setFiles] = useState<FileRecord[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
     const [activeUploadIds, setActiveUploadIds] = useState<string[]>([]);
     const [editingFileId, setEditingFileId] = useState<string | null>(null);
     const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
 
     // Fetch document batches from API
     const fetchDocumentBatches = async () => {
-        setIsLoading(true);
         try {
             const batches = await apiService.getDocumentBatches();
             // Transform API response to FileRecord format
@@ -62,7 +60,6 @@ const DocumentManager = () => {
             console.error('Failed to fetch document batches:', error);
             toastError('Không thể tải danh sách tài liệu');
         } finally {
-            setIsLoading(false);
         }
     };
 
@@ -72,7 +69,7 @@ const DocumentManager = () => {
     }, []);
 
     // Polling for processing files
-    const [pollingInterval, setPollingInterval] = useState<NodeJS.Timeout | null>(null);
+    const [pollingInterval, setPollingInterval] = useState<ReturnType<typeof setInterval> | null>(null);
     const [processingFiles, setProcessingFiles] = useState<FileRecord[]>([]);
     const [isStartUploading, setIsStartUploading] = useState(false);
 
