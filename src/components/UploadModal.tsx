@@ -8,6 +8,7 @@ interface UploadModalProps {
     onClose: () => void;
     onUpload: (files: File[]) => void;
     processingFiles?: FileRecord[]; // Files currently being processed
+    isStartUploading: boolean;
 }
 
 const STAGES = [
@@ -18,14 +19,17 @@ const STAGES = [
     "Matching data và chấm điểm chứng từ"
 ];
 
-const UploadModal = ({ isOpen, onClose, onUpload, processingFiles = [] }: UploadModalProps) => {
+const UploadModal = ({ isOpen, onClose, onUpload, processingFiles = [], isStartUploading = false }: UploadModalProps) => {
     const { t } = useI18n();
     const [files, setFiles] = useState<File[]>([]);
     const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // If there are processing files, we are in "uploading/processing" mode
-    const isProcessing = processingFiles.length > 0;
+    const isProcessing = processingFiles.length > 0 || isStartUploading === true;
+    console.log('isProcessing', isProcessing);
+    console.log('isStartUploading', isStartUploading);
+    console.log('processingFiles', processingFiles);
 
     // Reset state only when strictly closed (not just minified conceptually)
     useEffect(() => {
@@ -33,7 +37,7 @@ const UploadModal = ({ isOpen, onClose, onUpload, processingFiles = [] }: Upload
             setFiles([]);
             setIsDragging(false);
         }
-    }, [isOpen, isProcessing]);
+    }, [isOpen, isProcessing, isStartUploading]);
 
     if (!isOpen) return null;
 
@@ -93,7 +97,7 @@ const UploadModal = ({ isOpen, onClose, onUpload, processingFiles = [] }: Upload
         return 5; // Done
     };
 
-    const currentStageIndex = isProcessing ? getStageIndex(processingFiles[0].process_progress) : -1;
+    const currentStageIndex = isProcessing && processingFiles[0] ? getStageIndex(processingFiles[0].process_progress) : -1;
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
@@ -128,7 +132,7 @@ const UploadModal = ({ isOpen, onClose, onUpload, processingFiles = [] }: Upload
                                 </div>
                                 <div>
                                     <h3 className="text-lg font-bold text-gray-800">{processingFiles[0]?.name} {processingFiles.length > 1 ? `và ${processingFiles.length - 1} file khác` : ''}</h3>
-                                    <p className="text-sm text-gray-500">Đang thực hiện quy trình tự động hóa ({processingFiles[0].process_progress}%)</p>
+                                    <p className="text-sm text-gray-500">Đang thực hiện quy trình tự động hóa ({processingFiles[0]?.process_progress || 0}%)</p>
                                 </div>
                             </div>
 
