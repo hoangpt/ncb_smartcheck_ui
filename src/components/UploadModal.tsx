@@ -8,16 +8,20 @@ interface UploadModalProps {
     onClose: () => void;
     onUpload: (files: File[]) => void;
     processingFiles?: FileRecord[]; // Files currently being processed
+    isStartUploading: boolean;
 }
+const UploadModal = ({ isOpen, onClose, onUpload, processingFiles = [], isStartUploading = false }: UploadModalProps) => {
 
-const UploadModal = ({ isOpen, onClose, onUpload, processingFiles = [] }: UploadModalProps) => {
     const { t } = useI18n();
     const [files, setFiles] = useState<File[]>([]);
     const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // If there are processing files, we are in "uploading/processing" mode
-    const isProcessing = processingFiles.length > 0;
+    const isProcessing = processingFiles.length > 0 || isStartUploading === true;
+    console.log('isProcessing', isProcessing);
+    console.log('isStartUploading', isStartUploading);
+    console.log('processingFiles', processingFiles);
 
     // Reset state only when strictly closed (not just minified conceptually)
     useEffect(() => {
@@ -25,7 +29,7 @@ const UploadModal = ({ isOpen, onClose, onUpload, processingFiles = [] }: Upload
             setFiles([]);
             setIsDragging(false);
         }
-    }, [isOpen, isProcessing]);
+    }, [isOpen, isProcessing, isStartUploading]);
 
     if (!isOpen) return null;
 
@@ -85,7 +89,7 @@ const UploadModal = ({ isOpen, onClose, onUpload, processingFiles = [] }: Upload
         return 5; // Done
     };
 
-    const currentStageIndex = isProcessing ? getStageIndex(processingFiles[0].process_progress) : -1;
+    const currentStageIndex = isProcessing && processingFiles[0] ? getStageIndex(processingFiles[0].process_progress) : -1;
 
     const stages = [
         t('uploadModal.stages.uploadSuccess'),
@@ -134,8 +138,8 @@ const UploadModal = ({ isOpen, onClose, onUpload, processingFiles = [] }: Upload
                                     <FileText size={32} />
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-bold text-gray-800">{processingTitle}</h3>
-                                    <p className="text-sm text-gray-500">{t('uploadModal.processing.inProgress', { progress: processingFiles[0].process_progress })}</p>
+                                    <h3 className="text-lg font-bold text-gray-800">{processingFiles[0]?.name} {processingFiles.length > 1 ? `và ${processingFiles.length - 1} file khác` : ''}</h3>
+                                    <p className="text-sm text-gray-500">{t('uploadModal.processing.inProgress', {progress: processingFiles[0]?.process_progress || 0})}</p>
                                 </div>
                             </div>
 

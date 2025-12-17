@@ -261,9 +261,18 @@ class ApiService {
 
     return response.blob();
   }
+
+  async getDealsByBatch(batchId: number): Promise<any[]> {
+    return this.request<any[]>(`/api/deals/batch/${batchId}`);
+  }
+
+  async getDealById(dealId: number): Promise<any> {
+    return this.request<any>(`/api/deals/${dealId}`);
+  }
 }
 
 export const apiService = new ApiService();
+export type { DocumentBatch };
 
 
 

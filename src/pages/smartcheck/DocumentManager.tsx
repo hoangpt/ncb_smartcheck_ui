@@ -4,12 +4,13 @@ import {
     Upload, FileText,
     Scissors, CheckCircle, AlertTriangle, Eye
 } from 'lucide-react';
-import { MOCK_FILES } from '../../data/mock';
 import type { FileRecord } from '../../types';
 import UploadModal from '../../components/UploadModal';
 import SplittingEditor from '../../components/SplittingEditor';
-import { format } from 'date-fns';
+import { format, parse } from 'date-fns';
 import { useI18n } from '../../i18n/I18nProvider';
+import { apiService } from '../../services/api';
+import { toastSuccess, toastError } from '../../services/toast';
 
 // Timings in milliseconds
 const TIMING = {
@@ -33,94 +34,166 @@ const DocumentManager = () => {
     const navigate = useNavigate();
     const { t } = useI18n();
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-    const [files, setFiles] = useState<FileRecord[]>(MOCK_FILES);
+    const [files, setFiles] = useState<FileRecord[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
     const [activeUploadIds, setActiveUploadIds] = useState<string[]>([]);
     const [editingFileId, setEditingFileId] = useState<string | null>(null);
     const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
 
-    // Effect to run simulation loop
+    // Fetch document batches from API
+    const fetchDocumentBatches = async () => {
+        setIsLoading(true);
+        try {
+            const batches = await apiService.getDocumentBatches();
+            // Transform API response to FileRecord format
+            const transformedFiles: FileRecord[] = batches.map(batch => ({
+                id: batch.id.toString(),
+                name: batch.name,
+                uploadTime: format(new Date(batch.upload_time), 'dd/MM/yyyy HH:mm'),
+                uploadedBy: batch.uploaded_by || 'Unknown',
+                status: batch.status as 'processing' | 'processed' | 'error',
+                process_progress: batch.process_progress,
+                total_pages: batch.total_pages,
+                deals_detected: batch.deals_detected,
+                page_map: batch.page_map || []
+            }));
+            setFiles(transformedFiles);
+        } catch (error: any) {
+            console.error('Failed to fetch document batches:', error);
+            toastError('Không thể tải danh sách tài liệu');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Fetch data on mount
     useEffect(() => {
-        const interval = setInterval(() => {
-            setFiles(currentFiles => {
-                let hasChanges = false;
-                const updatedFiles = currentFiles.map(file => {
-                    // Skip files that are already completed or not new uploads
-                    if (file.status !== 'processing' || !file.id.startsWith('NEW_FILE')) {
-                        return file;
-                    }
-
-                    const startTime = parseInt(file.id.split('_')[2]); // Extract timestamp from ID
-                    const elapsed = Date.now() - startTime;
-
-                    let newProgress = file.process_progress;
-                    let newStatus: 'processing' | 'processed' | 'error' = 'processing';
-
-                    // Update progress based on elapsed time vs total time
-                    if (elapsed < TIME_POINTS.UPLOAD_DONE) {
-                        const stageProgress = (elapsed / TIMING.UPLOAD) * 10;
-                        newProgress = Math.min(10, stageProgress);
-                    } else if (elapsed < TIME_POINTS.SCAN_DONE) {
-                        const stageElapsed = elapsed - TIME_POINTS.UPLOAD_DONE;
-                        const stageProgress = (stageElapsed / TIMING.SCAN) * 20;
-                        newProgress = 10 + stageProgress;
-                    } else if (elapsed < TIME_POINTS.SPLIT_DONE) {
-                        const stageElapsed = elapsed - TIME_POINTS.SCAN_DONE;
-                        const stageProgress = (stageElapsed / TIMING.SPLIT) * 25;
-                        newProgress = 30 + stageProgress;
-                    } else if (elapsed < TIME_POINTS.STRUCTURE_DONE) {
-                        const stageElapsed = elapsed - TIME_POINTS.SPLIT_DONE;
-                        const stageProgress = (stageElapsed / TIMING.STRUCTURE) * 25;
-                        newProgress = 55 + stageProgress;
-                    } else if (elapsed < TIME_POINTS.MATCHING_DONE) {
-                        const stageElapsed = elapsed - TIME_POINTS.STRUCTURE_DONE;
-                        const stageProgress = (stageElapsed / TIMING.MATCHING) * 20;
-                        newProgress = 80 + stageProgress;
-                    } else {
-                        newProgress = 100;
-                        newStatus = 'processed';
-                    }
-
-                    if (Math.floor(newProgress) !== Math.floor(file.process_progress) || newStatus !== file.status) {
-                        hasChanges = true;
-                        return {
-                            ...file,
-                            process_progress: Math.floor(newProgress),
-                            status: newStatus
-                        };
-                    }
-                    return file;
-                });
-
-                return hasChanges ? updatedFiles : currentFiles;
-            });
-        }, 1000); // Check every second
-
-        return () => clearInterval(interval);
+        fetchDocumentBatches();
     }, []);
 
-    const handleUpload = (uploadedFiles: File[]) => {
-        // Create new records for uploaded files
-        const newFileIds: string[] = [];
-        const newRecords: FileRecord[] = uploadedFiles.map((file, index) => {
-            const id = `NEW_FILE_${Date.now()}_${index}`;
-            newFileIds.push(id);
-            return {
-                id,
-                name: file.name,
-                // Format: dd/MM/yyyy HH:mm
-                uploadTime: format(new Date(), 'dd/MM/yyyy HH:mm'),
-                uploadedBy: "Admin User",
-                status: 'processing',
-                process_progress: 0,
-                total_pages: Math.floor(Math.random() * 10) + 1,
-                deals_detected: Math.floor(Math.random() * 5) + 1,
-                page_map: []
-            };
-        });
+    // Polling for processing files
+    const [pollingInterval, setPollingInterval] = useState<NodeJS.Timeout | null>(null);
+    const [processingFiles, setProcessingFiles] = useState<FileRecord[]>([]);
+    const [isStartUploading, setIsStartUploading] = useState(false);
 
-        setActiveUploadIds(newFileIds);
-        setFiles(prev => [...newRecords, ...prev]);
-        // Do NOT close modal automatically, keep it open to show progress
+    const startPolling = () => {
+        // Clear existing interval if any
+        if (pollingInterval) {
+            clearInterval(pollingInterval);
+            setPollingInterval(null);
+        }
+
+        console.log('Starting polling for processing files...');
+
+        // Poll every 2 seconds for more responsive updates
+        const interval = setInterval(async () => {
+            try {
+                const batches = await apiService.getDocumentBatches();
+                const transformedFiles: FileRecord[] = batches.map(batch => ({
+                    id: batch.id.toString(),
+                    name: batch.name,
+                    uploadTime: format(new Date(batch.upload_time), 'dd/MM/yyyy HH:mm'),
+                    uploadedBy: batch.uploaded_by || 'Unknown',
+                    status: batch.status as 'processing' | 'processed' | 'error',
+                    process_progress: batch.process_progress,
+                    total_pages: batch.total_pages,
+                    deals_detected: batch.deals_detected,
+                    page_map: batch.page_map || []
+                }));
+
+                setFiles(transformedFiles);
+                console.log('transformedFiles', transformedFiles);
+                console.log('activeUploadIds', activeUploadIds);
+
+                // Update processing files for UploadModal
+                setProcessingFiles(transformedFiles.filter(f => activeUploadIds.includes(f.id)));
+
+                // Stop polling if no files are processing anymore
+                const hasProcessing = transformedFiles.some(f => f.status === 'processing');
+                console.log('hasProcessing', hasProcessing);
+                if (!hasProcessing) {
+                    console.log('No more processing files, stopping polling');
+                    clearInterval(interval);
+                    setPollingInterval(null);
+                    // setProcessingFiles([]);
+
+                    // Show completion notification
+                    const justCompleted = transformedFiles.filter(f =>
+                        activeUploadIds.includes(f.id) && f.status === 'processed'
+                    );
+                    if (justCompleted.length > 0) {
+                        toastSuccess(`Hoàn thành xử lý ${justCompleted.length} tài liệu`);
+                        // setActiveUploadIds([]); // Clear active uploads
+                    }
+                }
+            } catch (error) {
+                console.error('Polling error:', error);
+            }
+        }, 2000); // Poll every 2 seconds
+
+        setPollingInterval(interval);
+    };
+
+    const stopPolling = () => {
+        if (pollingInterval) {
+            console.log('Stopping polling');
+            clearInterval(pollingInterval);
+            setPollingInterval(null);
+        }
+    };
+
+    // Auto-start polling if there are processing files
+    useEffect(() => {
+        const hasProcessing = files.some(f => f.status === 'processing');
+        if (hasProcessing && !pollingInterval) {
+            startPolling();
+        }
+
+        return () => {
+            stopPolling();
+        };
+    }, [files]);
+
+    // Cleanup on unmount
+    useEffect(() => {
+        return () => {
+            stopPolling();
+        };
+    }, []);
+
+    const handleUpload = async (uploadedFiles: File[]) => {
+        // Upload files one by one
+        setIsStartUploading(true);
+        for (const file of uploadedFiles) {
+            try {
+                const batch = await apiService.uploadDocumentBatch(file, file.name);
+                toastSuccess(`Đã tải lên ${file.name} thành công`);
+
+                // Add the new batch to the list
+                const newRecord: FileRecord = {
+                    id: batch.id.toString(),
+                    name: batch.name,
+                    uploadTime: format(new Date(batch.upload_time), 'dd/MM/yyyy HH:mm'),
+                    uploadedBy: batch.uploaded_by || localStorage.getItem('username') || 'Unknown',
+                    status: batch.status as 'processing' | 'processed' | 'error',
+                    process_progress: batch.process_progress,
+                    total_pages: batch.total_pages,
+                    deals_detected: batch.deals_detected,
+                    page_map: batch.page_map || []
+                };
+
+                setFiles(prev => [newRecord, ...prev]);
+                setActiveUploadIds(prev => [...prev, batch.id.toString()]);
+                setProcessingFiles(prev => [...prev, newRecord]);
+            } catch (error: any) {
+                console.error('Upload failed:', error);
+                toastError(`Không thể tải lên ${file.name}: ${error.message}`);
+            }
+        }
+        setIsStartUploading(false);
+
+        // Start polling for processing files
+        startPolling();
     };
 
     const handleCloseModal = () => {
@@ -155,11 +228,8 @@ const DocumentManager = () => {
         return fileDate === selectedDate;
     });
 
-    // Filter files that are currently being viewed in the modal (from the full list or filtered list? 
-    // Usually modal runs on activeUploadIds, independent of view filter, 
-    // but here we pass 'processingFiles' to modal. Let's keep using 'files' (all files) for modal consistency
-    // so user can still see upload progress even if they filtered away the date.
-    const processingFiles = files.filter(f => activeUploadIds.includes(f.id));
+    // processingFiles is now managed by polling state above
+    // No need to filter here - it's updated in real-time by the polling mechanism
 
     // Stats
     const totalFiles = filteredFiles.length;
@@ -187,6 +257,8 @@ const DocumentManager = () => {
         if (progress < 100) return t('references.documentManager.status.matching');
         return t('references.documentManager.status.done');
     };
+
+    console.log('files', editingFileId);
 
     return (
         <div className="p-8 animate-fade-in space-y-6">
@@ -347,6 +419,7 @@ const DocumentManager = () => {
                 onClose={handleCloseModal}
                 onUpload={handleUpload}
                 processingFiles={processingFiles}
+                isStartUploading={isStartUploading}
             />
 
             {editingFileId && (
