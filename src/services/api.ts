@@ -338,7 +338,7 @@ class ApiService {
 }
 
 export const apiService = new ApiService();
-export type { DocumentBatch };
+export type { DocumentBatch as DocumentBatchType };
 
 
 

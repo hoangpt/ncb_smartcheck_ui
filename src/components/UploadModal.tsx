@@ -99,12 +99,12 @@ const UploadModal = ({ isOpen, onClose, onUpload, processingFiles = [], isStartU
         t('uploadModal.stages.matchingScoring')
     ];
 
-    const processingTitle = (() => {
-        const firstName = processingFiles[0]?.name ?? '';
-        const otherCount = Math.max(0, processingFiles.length - 1);
-        if (otherCount <= 0) return firstName;
-        return t('uploadModal.processing.fileTitleWithOthers', { name: firstName, count: otherCount });
-    })();
+    // const processingTitle = (() => {
+    //     const firstName = processingFiles[0]?.name ?? '';
+    //     const otherCount = Math.max(0, processingFiles.length - 1);
+    //     if (otherCount <= 0) return firstName;
+    //     return t('uploadModal.processing.fileTitleWithOthers', { name: firstName, count: otherCount });
+    // })();
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">

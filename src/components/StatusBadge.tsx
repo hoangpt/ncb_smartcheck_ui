@@ -1,8 +1,10 @@
 import { CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
 import { useI18n } from '../i18n/I18nProvider';
 
+import type { TDealStatus } from '../types/deal';
+
 interface StatusBadgeProps {
-    status: 'matched' | 'mismatch' | 'review' | 'processed' | 'processing' | 'error';
+    status: TDealStatus;
     score?: number;
 }
 
