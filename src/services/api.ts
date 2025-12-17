@@ -221,7 +221,7 @@ class ApiService {
       });
     }
     const query = queryParams.toString();
-    return this.request<DocumentBatch[]>(`/api/document-batches${query ? `?${query}` : ''}`);
+    return this.request<DocumentBatch[]>(`/api/document-batches/${query ? `?${query}` : ''}`);
   }
 
   async getDocumentBatchById(batchId: number): Promise<DocumentBatch> {
