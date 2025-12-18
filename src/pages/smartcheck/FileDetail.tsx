@@ -123,7 +123,7 @@ const FileDetail = () => {
     // Get full document URL (original batch PDF)
     const getFullDocumentUrl = () => {
         if (!file) return null;
-        const API_URL = import.meta.env.VITE_API_URL || 'http://192.168.0.200:8004';
+        const API_URL = import.meta.env.VITE_API_URL || '';
         const token = localStorage.getItem('access_token');
         const url = `${API_URL}/${file.file_path}`;
         return token ? `${url}?token=${token}` : url;
@@ -393,7 +393,7 @@ const FileDetail = () => {
                                         {(selectedDeal as any).teller_signature_path && (
                                             <div className="bg-white p-2 rounded border border-gray-300">
                                                 <img
-                                                    src={`${import.meta.env.VITE_API_URL || 'http://192.168.0.200:8004'}/${(selectedDeal as any).teller_signature_path}`}
+                                                    src={`${import.meta.env.VITE_API_URL || ''}/${(selectedDeal as any).teller_signature_path}`}
                                                     alt="Teller Signature"
                                                     className="w-full h-auto max-h-20 object-contain"
                                                     onError={(e) => {
@@ -422,7 +422,7 @@ const FileDetail = () => {
                                         {(selectedDeal as any).supervisor_signature_path && (
                                             <div className="bg-white p-2 rounded border border-gray-300">
                                                 <img
-                                                    src={`${import.meta.env.VITE_API_URL || 'http://192.168.0.200:8004'}/${(selectedDeal as any).supervisor_signature_path}`}
+                                                    src={`${import.meta.env.VITE_API_URL || ''}/${(selectedDeal as any).supervisor_signature_path}`}
                                                     alt="Supervisor Signature"
                                                     className="w-full h-auto max-h-20 object-contain"
                                                     onError={(e) => {
