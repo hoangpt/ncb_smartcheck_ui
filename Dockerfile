@@ -14,7 +14,7 @@ RUN pnpm install --frozen-lockfile
 
 # Copy source code
 COPY . .
-
+COPY .env.docker .env
 # Build the application
 RUN pnpm run build
 
