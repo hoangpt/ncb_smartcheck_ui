@@ -94,7 +94,7 @@
       "title": "Trạng thái Gần đây",
       "updatedAgo": "Vừa cập nhật {minutes} phút trước",
       "completed": "Hoàn thành"
-    }    
+    }
   },
   "login": {
     "username": "Tên đăng nhập",
@@ -118,9 +118,9 @@
     "exportExcel": "Xuất Excel",
     "tabs": {
       "all": "Tất cả ({total})",
-      "pending": "Chờ duyệt ({count})",
+      "pending": "Cần kiểm tra ({count})",
       "exceptions": "Ngoại lệ ({count})",
-      "done": "Đã hoàn thành ({count})"
+      "done": "Khớp đúng ({count})"
     },
     "table": {
       "dealId": "Deal ID",
@@ -131,8 +131,7 @@
       "scoreAction": "Chấm điểm"
     },
     "pageLabel": "Trang {range}"
-  }
-  ,
+  },
   "exceptions": {
     "title": "Báo cáo ngoại lệ",
     "banner": "Phát hiện {count} vấn đề cần xử lý thủ công",
@@ -200,41 +199,41 @@
         "done": "Hoàn thành"
       }
     },
-        "fileDetail": {
-          "dealsList": "Danh sách Deal ({count})",
-          "dataDetail": "Chi tiết dữ liệu",
-          "compareData": "So sánh dữ liệu",
-          "signatures": "Chữ ký",
-          "validation": {
-            "matched": "Dữ liệu khớp hoàn toàn",
-            "mismatch": "Phát hiện sai lệch"
-          },
-          "extractionConfidencePrefix": "Độ tin cậy của dữ liệu trích xuất đạt",
-          "detectedCount": "Đã nhận diện: {count}",
-          "labels": {
-            "customer": "Khách hàng",
-            "amount": "Số tiền",
-            "pages": "Trang",
-            "dealId": "Mã Deal",
-            "transactionType": "Loại giao dịch",
-            "coreBanking": "Core Banking",
-            "ocrExtract": "OCR Trích xuất",
-            "teller": "Giao dịch viên",
-            "supervisor": "Kiểm soát viên"
-          },
-          "status": {
-            "valid": "Hợp lệ",
-            "lowConfidence": "Độ tin cậy thấp"
-          },
-          "notFound": "Không tìm thấy file.",
-          "backToList": "Quay lại danh sách",
-          "selectDealPrompt": "Chọn một Deal để xem chi tiết",
-          "preview": {
-            "title": "Xem trước tài liệu",
-            "viewingPages": "Đang xem Trang {pages}",
-            "selectPrompt": "Chọn một Deal để xem trang"
-          }
-        },
+    "fileDetail": {
+      "dealsList": "Danh sách Deal ({count})",
+      "dataDetail": "Chi tiết dữ liệu",
+      "compareData": "So sánh dữ liệu",
+      "signatures": "Chữ ký",
+      "validation": {
+        "matched": "Dữ liệu khớp hoàn toàn",
+        "mismatch": "Phát hiện sai lệch"
+      },
+      "extractionConfidencePrefix": "Độ tin cậy của dữ liệu trích xuất đạt",
+      "detectedCount": "Đã nhận diện: {count}",
+      "labels": {
+        "customer": "Khách hàng",
+        "amount": "Số tiền",
+        "pages": "Trang",
+        "dealId": "Mã Deal",
+        "transactionType": "Loại giao dịch",
+        "coreBanking": "Core Banking",
+        "ocrExtract": "OCR Trích xuất",
+        "teller": "Giao dịch viên",
+        "supervisor": "Kiểm soát viên"
+      },
+      "status": {
+        "valid": "Hợp lệ",
+        "lowConfidence": "Độ tin cậy thấp"
+      },
+      "notFound": "Không tìm thấy file.",
+      "backToList": "Quay lại danh sách",
+      "selectDealPrompt": "Chọn một Deal để xem chi tiết",
+      "preview": {
+        "title": "Xem trước tài liệu",
+        "viewingPages": "Đang xem Trang {pages}",
+        "selectPrompt": "Chọn một Deal để xem trang"
+      }
+    },
     "stats": {
       "filesToday": "File trong ngày",
       "totalDealsExtracted": "Tổng Deals bóc tách",

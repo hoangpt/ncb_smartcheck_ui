@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Download } from 'lucide-react';
+import { Download, Calendar } from 'lucide-react';
 import { useI18n } from '../../i18n/I18nProvider';
 import { toastInfo } from '../../services/toast';
 import { MOCK_DEALS } from '../../data/mock';
@@ -13,10 +13,11 @@ const Reconciliation = () => {
 
 
     const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
+    const [activeTab, setActiveTab] = useState<'all' | 'pending' | 'exceptions' | 'done'>('all');
 
     // Filter deals based on selectedDate
     // Deal timestamp format: "18/10/2025 07:51" (dd/MM/yyyy HH:mm)
-    const filteredDeals = MOCK_DEALS.filter(deal => {
+    const dateFilteredDeals = MOCK_DEALS.filter(deal => {
         if (!selectedDate) return true;
         const [day, month, year] = deal.timestamp.split(' ')[0].split('/');
         // Create date string in yyyy-MM-dd for comparison
@@ -24,9 +25,24 @@ const Reconciliation = () => {
         return dealDate === selectedDate;
     });
 
-    const pendingCount = filteredDeals.filter(d => d.status === 'review').length;
-    const exceptionCount = filteredDeals.filter(d => d.status === 'mismatch').length;
-    const doneCount = filteredDeals.filter(d => d.status === 'matched').length;
+    const pendingCount = dateFilteredDeals.filter(d => d.status === 'review').length;
+    const exceptionCount = dateFilteredDeals.filter(d => d.status === 'mismatch').length;
+    const doneCount = dateFilteredDeals.filter(d => d.status === 'matched').length;
+
+    const filteredDeals = dateFilteredDeals.filter(deal => {
+        if (activeTab === 'all') return true;
+        if (activeTab === 'pending') return deal.status === 'review';
+        if (activeTab === 'exceptions') return deal.status === 'mismatch';
+        if (activeTab === 'done') return deal.status === 'matched';
+        return true;
+    });
+
+    const tabs = [
+        { id: 'all', label: t('reconciliation.tabs.all', { total: dateFilteredDeals.length }) },
+        { id: 'pending', label: t('reconciliation.tabs.pending', { count: pendingCount }) },
+        { id: 'exceptions', label: t('reconciliation.tabs.exceptions', { count: exceptionCount }) },
+        { id: 'done', label: t('reconciliation.tabs.done', { count: doneCount }) }
+    ] as const;
 
     return (
         <div className="p-8 animate-fade-in">
@@ -36,17 +52,21 @@ const Reconciliation = () => {
                     <p className="text-gray-500 mt-1">{t('reconciliation.subtitle')}</p>
                 </div>
                 <div className="flex gap-4">
-                    <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-gray-300 shadow-sm">
+                    <div className="relative flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-gray-300 shadow-sm cursor-pointer hover:bg-gray-50">
                         <span className="text-sm text-gray-600">{t('common.date')}:</span>
+                        <span className="text-sm font-bold text-[#004A99] flex items-center gap-2">
+                            {selectedDate.split('-').reverse().join('/')}
+                            <Calendar size={16} className="text-gray-400" />
+                        </span>
                         <input
                             type="date"
                             value={selectedDate}
+                            max={new Date().toISOString().split('T')[0]}
                             onChange={(e) => setSelectedDate(e.target.value)}
-                            className="outline-none text-sm text-gray-800 bg-transparent"
+                            className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
                         />
                     </div>
                     <div className="flex gap-2">
-
                         <button
                             onClick={() => toastInfo('Coming soon')}
                             className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2 text-sm font-medium shadow-sm"
@@ -59,10 +79,18 @@ const Reconciliation = () => {
 
             {/* Filter Tabs */}
             <div className="flex gap-4 mb-6 border-b pb-1 border-[#ccc]">
-                <button className="px-4 py-2 text-[#004A99] font-bold border-b-2 border-[#004A99]">{t('reconciliation.tabs.all', { total: filteredDeals.length })}</button>
-                <button className="px-4 py-2 text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-t">{t('reconciliation.tabs.pending', { count: pendingCount })}</button>
-                <button className="px-4 py-2 text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-t">{t('reconciliation.tabs.exceptions', { count: exceptionCount })}</button>
-                <button className="px-4 py-2 text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-t">{t('reconciliation.tabs.done', { count: doneCount })}</button>
+                {tabs.map((tab) => (
+                    <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id)}
+                        className={`px-4 py-2 rounded-t transition-colors ${activeTab === tab.id
+                            ? 'text-[#004A99] font-bold border-b-2 border-[#004A99] bg-blue-50/50'
+                            : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                            }`}
+                    >
+                        {tab.label}
+                    </button>
+                ))}
             </div>
 
             <div className="bg-white rounded-lg shadow border border-[#ddd] overflow-hidden">

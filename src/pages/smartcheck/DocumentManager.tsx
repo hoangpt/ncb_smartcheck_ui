@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Upload, FileText,
-    Scissors, CheckCircle, AlertTriangle, Eye
+    Scissors, CheckCircle, AlertTriangle, Eye, Calendar
 } from 'lucide-react';
 import type { FileRecord } from '../../types';
 import UploadModal from '../../components/UploadModal';
@@ -267,13 +267,18 @@ const DocumentManager = () => {
                     <p className="text-gray-500 mt-1">{t('references.documentManager.subtitle')}</p>
                 </div>
                 <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-gray-300 shadow-sm">
+                    <div className="relative flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-gray-300 shadow-sm cursor-pointer hover:bg-gray-50">
                         <span className="text-sm text-gray-600">{t('common.date')}:</span>
+                        <span className="text-sm font-bold text-[#004A99] flex items-center gap-2">
+                            {selectedDate.split('-').reverse().join('/')}
+                            <Calendar size={16} className="text-gray-400" />
+                        </span>
                         <input
                             type="date"
                             value={selectedDate}
+                            max={new Date().toISOString().split('T')[0]}
                             onChange={(e) => setSelectedDate(e.target.value)}
-                            className="outline-none text-sm text-gray-800 bg-transparent"
+                            className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
                         />
                     </div>
                     <button

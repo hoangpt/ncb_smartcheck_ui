@@ -15,8 +15,8 @@ const proxyConfig = {
   changeOrigin: true,
   secure: false,
   cookieDomainRewrite: 'localhost',
-  configure: (proxy, _options) => {
-    proxy.on('proxyRes', (proxyRes, req, _res) => {
+  configure: (proxy: any, _options: any) => {
+    proxy.on('proxyRes', (proxyRes: any, _req: any, _res: any) => {
       if (proxyRes.headers['location']) {
         ORIGINS_TO_REWRITE.forEach((origin) => {
           proxyRes.headers['location'] = proxyRes.headers['location'].replace(origin, '');
