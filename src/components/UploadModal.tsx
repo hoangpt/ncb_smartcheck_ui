@@ -9,27 +9,42 @@ interface UploadModalProps {
     onUpload: (files: File[]) => void;
     processingFiles?: FileRecord[]; // Files currently being processed
     isStartUploading: boolean;
+    activeUploadIds?: string[]; // IDs of files currently being processed
 }
-const UploadModal = ({ isOpen, onClose, onUpload, processingFiles = [], isStartUploading = false }: UploadModalProps) => {
+const UploadModal = ({ isOpen, onClose, onUpload, processingFiles = [], isStartUploading = false, activeUploadIds = [] }: UploadModalProps) => {
 
     const { t } = useI18n();
     const [files, setFiles] = useState<File[]>([]);
     const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const hasProcessedRef = useRef(false); // Track if we've ever started processing
 
-    // If there are processing files, we are in "uploading/processing" mode
-    const isProcessing = processingFiles.length > 0 || isStartUploading === true;
-    console.log('isProcessing', isProcessing);
-    console.log('isStartUploading', isStartUploading);
-    console.log('processingFiles', processingFiles);
-
-    // Reset state only when strictly closed (not just minified conceptually)
+    // If there are processing files OR active upload IDs, we are in "uploading/processing" mode
+    // Use activeUploadIds to prevent flickering when processingFiles temporarily becomes empty during polling
+    const isProcessing = processingFiles.length > 0 || isStartUploading === true || activeUploadIds.length > 0;
+    
+    // Track if we've started processing to prevent reset during temporary empty states
     useEffect(() => {
-        if (isOpen && !isProcessing) {
+        if (isProcessing) {
+            hasProcessedRef.current = true;
+        }
+    }, [isProcessing]);
+
+    // Reset state only when modal is closed AND we're not processing
+    // Use hasProcessedRef to prevent reset during temporary polling gaps
+    useEffect(() => {
+        if (!isOpen) {
+            // Only reset when modal is actually closed
+            setFiles([]);
+            setIsDragging(false);
+            hasProcessedRef.current = false;
+        } else if (isOpen && !isProcessing && !hasProcessedRef.current) {
+            // Only reset files if modal is open, not processing, and we've never processed
+            // This prevents reset during temporary empty states during polling
             setFiles([]);
             setIsDragging(false);
         }
-    }, [isOpen, isProcessing, isStartUploading]);
+    }, [isOpen, isProcessing]);
 
     if (!isOpen) return null;
 

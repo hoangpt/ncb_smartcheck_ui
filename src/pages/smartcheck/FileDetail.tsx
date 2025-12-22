@@ -214,9 +214,9 @@ const FileDetail = () => {
             </div>
 
             {/* Content Area */}
-            <div className="flex-1 flex gap-6 overflow-hidden">
+            <div className="flex-1 flex gap-5 overflow-hidden">
                 {/* Left: Deal List */}
-                <div className="w-1/3 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden">
+                <div className="w-1/5 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden">
                     <div className="p-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
                         <h3 className="font-bold text-gray-700">{t('references.fileDetail.dealsList', { count: deals.length })}</h3>
                         <div className="text-xs text-gray-400">{t('references.fileDetail.detectedCount', { count: file.deals_detected || 0 })}</div>
@@ -468,9 +468,9 @@ const FileDetail = () => {
                     </div>
 
                     {/* PDF Content */}
-                    <div className="flex-1 overflow-auto flex items-center justify-center p-4">
+                    <div className="flex-1 overflow-auto flex items-center justify-center p-0">
                         {selectedDeal && getPdfUrl(selectedDeal) ? (
-                            <div className="bg-white shadow-lg">
+                            <div className="bg-white shadow-lg w-full">
                                 <Document
                                     file={getPdfUrl(selectedDeal)}
                                     onLoadSuccess={onDocumentLoadSuccess}
