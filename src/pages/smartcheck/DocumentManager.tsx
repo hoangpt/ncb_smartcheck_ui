@@ -72,6 +72,7 @@ const DocumentManager = () => {
     const [pollingInterval, setPollingInterval] = useState<ReturnType<typeof setInterval> | null>(null);
     const [processingFiles, setProcessingFiles] = useState<FileRecord[]>([]);
     const [isStartUploading, setIsStartUploading] = useState(false);
+    const [wasManuallyMinimized, setWasManuallyMinimized] = useState(false);
 
     const startPolling = () => {
         // Clear existing interval if any
@@ -108,19 +109,30 @@ const DocumentManager = () => {
                 // Stop polling if no files are processing anymore
                 const hasProcessing = transformedFiles.some(f => f.status === 'processing');
                 console.log('hasProcessing', hasProcessing);
-                if (!hasProcessing) {
+                
+                // Check if all active uploads are done
+                const activeUploadsStatus = transformedFiles.filter(f => activeUploadIds.includes(f.id));
+                const allActiveUploadsDone = activeUploadIds.length > 0 && 
+                    activeUploadsStatus.length === activeUploadIds.length &&
+                    activeUploadsStatus.every(f => f.status === 'processed' || f.status === 'error' || f.process_progress === 100);
+                
+                if (!hasProcessing || allActiveUploadsDone) {
                     console.log('No more processing files, stopping polling');
                     clearInterval(interval);
                     setPollingInterval(null);
-                    // setProcessingFiles([]);
 
                     // Show completion notification
                     const justCompleted = transformedFiles.filter(f =>
-                        activeUploadIds.includes(f.id) && f.status === 'processed'
+                        activeUploadIds.includes(f.id) && (f.status === 'processed' || f.process_progress === 100)
                     );
                     if (justCompleted.length > 0) {
                         toastSuccess(`Hoàn thành xử lý ${justCompleted.length} tài liệu`);
-                        // setActiveUploadIds([]); // Clear active uploads
+                        // Clear active uploads and auto-hide modal if it was not manually minimized
+                        setActiveUploadIds([]);
+                        setProcessingFiles([]);
+                        if (isUploadModalOpen && !wasManuallyMinimized) {
+                            setIsUploadModalOpen(false);
+                        }
                     }
                 }
             } catch (error) {
@@ -161,6 +173,7 @@ const DocumentManager = () => {
     const handleUpload = async (uploadedFiles: File[]) => {
         // Upload files one by one
         setIsStartUploading(true);
+        setWasManuallyMinimized(false); // Reset minimized flag when starting new upload
         for (const file of uploadedFiles) {
             try {
                 const batch = await apiService.uploadDocumentBatch(file, file.name);
@@ -196,8 +209,42 @@ const DocumentManager = () => {
     };
 
     const handleCloseModal = () => {
-        setActiveUploadIds([]); // Clear active uploads view
-        setIsUploadModalOpen(false);
+        // If processing, just minimize (don't clear activeUploadIds)
+        if (processingFiles.length > 0 || isStartUploading || activeUploadIds.length > 0) {
+            setWasManuallyMinimized(true);
+            setIsUploadModalOpen(false);
+        } else {
+            // If not processing, fully close
+            setActiveUploadIds([]);
+            setProcessingFiles([]);
+            setIsUploadModalOpen(false);
+            setWasManuallyMinimized(false);
+        }
+    };
+
+    const handleFileItemClick = (file: FileRecord) => {
+        if (file.status === 'processing') {
+            // If still processing, show modal with progress
+            setActiveUploadIds(prev => {
+                // Add file.id if not already in the list
+                if (!prev.includes(file.id)) {
+                    return [...prev, file.id];
+                }
+                return prev;
+            });
+            // Update processingFiles immediately to show correct state
+            setProcessingFiles(prev => {
+                if (!prev.find(f => f.id === file.id)) {
+                    return [...prev, file];
+                }
+                return prev;
+            });
+            setIsUploadModalOpen(true);
+            setWasManuallyMinimized(false);
+        } else {
+            // If done, navigate to detail page
+            navigate(`/documents/${file.id}`);
+        }
     };
 
     const handleSaveSplitting = (fileId: string, newPageMap: any[]) => {
@@ -282,7 +329,10 @@ const DocumentManager = () => {
                         />
                     </div>
                     <button
-                        onClick={() => setIsUploadModalOpen(true)}
+                        onClick={() => {
+                            setWasManuallyMinimized(false);
+                            setIsUploadModalOpen(true);
+                        }}
                         className="bg-[#004A99] hover:bg-blue-800 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-lg active:scale-95 transition-transform"
                     >
                         <Upload size={18} />
@@ -310,7 +360,11 @@ const DocumentManager = () => {
             {/* File List */}
             <div className="space-y-4">
                 {filteredFiles.map((file: FileRecord) => (
-                    <div key={file.id} className="bg-white rounded-xl shadow-sm overflow-hidden group hover:shadow-md transition-shadow">
+                    <div 
+                        key={file.id} 
+                        className="bg-white rounded-xl shadow-sm overflow-hidden group hover:shadow-md transition-shadow cursor-pointer"
+                        onClick={() => handleFileItemClick(file)}
+                    >
                         {/* File Header */}
                         <div
                             className="p-4 flex items-center justify-between border-b border-[#ddd]"
@@ -393,14 +447,20 @@ const DocumentManager = () => {
                                             {/* Hover Actions */}
                                             <div className="absolute inset-0 bg-black/5 backdrop-blur-[1px] hidden group-hover:flex items-center justify-center gap-1 rounded transition-all">
                                                 <button
-                                                    onClick={() => navigate(`/documents/${file.id}`)}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        navigate(`/documents/${file.id}`);
+                                                    }}
                                                     className="p-1 bg-white rounded shadow text-[#004A99] hover:text-blue-800"
                                                     title={t('references.documentManager.viewDetail')}
                                                 >
                                                     <Eye size={12} />
                                                 </button>
                                                 <button
-                                                    onClick={() => setEditingFileId(file.id)}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setEditingFileId(file.id);
+                                                    }}
                                                     className="p-1 bg-white rounded shadow text-gray-600 hover:text-red-600"
                                                     title={t('references.documentManager.editSplitting')}
                                                 >
@@ -424,6 +484,7 @@ const DocumentManager = () => {
                 onUpload={handleUpload}
                 processingFiles={processingFiles}
                 isStartUploading={isStartUploading}
+                activeUploadIds={activeUploadIds}
             />
 
             {editingFileId && (

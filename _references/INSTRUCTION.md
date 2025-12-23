@@ -71,7 +71,7 @@ Sau khi cắt thành công, các Deal được chuyển sang trạng thái "Sẵ
 ### Backend & Service
 *   **Queue System**: Bắt buộc dùng Queue (RabbitMQ/Kafka/Redis Queue) để xử lý file lớn, tránh treo server.
 *   **OCR Engine**:
-    *   Tesseract (Open source) hoặc Google Vision API / AWS Textract (Cloud).
+    *   Azure Form Recognizer (Cloud) - hệ thống hiện tại sử dụng Azure Form Recognizer để OCR PDF.
     *   Nên định nghĩa "Vùng quan tâm" (Region of Interest - ROI) để tăng tốc độ và độ chính xác (chỉ OCR vùng Header để tìm Deal ID).
 *   **Storage**: MinIO/S3 để lưu file gốc và các file cắt nhỏ (nếu cần tách vật lý).
 
