@@ -1,5 +1,32 @@
 const API_URL = import.meta.env.VITE_API_URL || '';
 
+let isAuthRedirectInProgress = false;
+
+function clearAuthStorage() {
+  localStorage.removeItem('isAuthenticated');
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('user_id');
+  localStorage.removeItem('username');
+  localStorage.removeItem('role');
+}
+
+function redirectToLogin() {
+  if (isAuthRedirectInProgress) return;
+  if (window.location.pathname === '/login') return;
+
+  isAuthRedirectInProgress = true;
+  clearAuthStorage();
+  window.location.replace('/login');
+}
+
+function getErrorDetail(body: unknown): string | undefined {
+  if (!body || typeof body !== 'object') return undefined;
+  if ('detail' in body && typeof (body as Record<string, unknown>).detail === 'string') {
+    return (body as Record<string, unknown>).detail as string;
+  }
+  return undefined;
+}
+
 export interface LoginRequest {
   emailOrUsername: string;
   password: string;
@@ -88,28 +115,36 @@ class ApiService {
     return localStorage.getItem('access_token');
   }
 
+  private handleAuthError(response: Response, endpoint: string) {
+    // Per UX: any 401 from API => force back to login.
+    if (response.status !== 401) return;
+
+    // Avoid redirect loop while attempting to login.
+    if (endpoint.startsWith('/auth/login')) return;
+
+    redirectToLogin();
+  }
+
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
     const token = this.getAuthToken();
-    const headers: any = {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    };
-
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
+    const headers = new Headers(options.headers);
+    if (!headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
+    if (token) headers.set('Authorization', `Bearer ${token}`);
 
     const response = await fetch(`${API_URL}${endpoint}`, {
       ...options,
       headers,
     });
 
+    this.handleAuthError(response, endpoint);
+
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ detail: 'An error occurred' }));
-      throw new Error(error.detail || `HTTP error! status: ${response.status}`);
+      const errorBody: unknown = await response.json().catch(() => null);
+      const detail = getErrorDetail(errorBody);
+      throw new Error(detail || `HTTP error! status: ${response.status}`);
     }
 
     return response.json();
@@ -189,20 +224,22 @@ class ApiService {
       formData.append('name', name);
     }
 
-    const headers: HeadersInit = {};
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
+    const headers = new Headers();
+    if (token) headers.set('Authorization', `Bearer ${token}`);
 
-    const response = await fetch(`${API_URL}/api/document-batches/upload`, {
+    const endpoint = '/api/document-batches/upload';
+    const response = await fetch(`${API_URL}${endpoint}`, {
       method: 'POST',
       headers,
       body: formData,
     });
 
+    this.handleAuthError(response, endpoint);
+
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ detail: 'An error occurred' }));
-      throw new Error(error.detail || `HTTP error! status: ${response.status}`);
+      const errorBody: unknown = await response.json().catch(() => null);
+      const detail = getErrorDetail(errorBody);
+      throw new Error(detail || `HTTP error! status: ${response.status}`);
     }
 
     return response.json();
@@ -251,9 +288,12 @@ class ApiService {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const response = await fetch(`${API_URL}/api/document-batches/${batchId}/download`, {
+    const endpoint = `/api/document-batches/${batchId}/download`;
+    const response = await fetch(`${API_URL}${endpoint}`, {
       headers,
     });
+
+    this.handleAuthError(response, endpoint);
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -262,12 +302,12 @@ class ApiService {
     return response.blob();
   }
 
-  async getDealsByBatch(batchId: number): Promise<any[]> {
-    return this.request<any[]>(`/api/deals/batch/${batchId}`);
+  async getDealsByBatch(batchId: number): Promise<unknown[]> {
+    return this.request<unknown[]>(`/api/deals/batch/${batchId}`);
   }
 
-  async getDealById(dealId: number): Promise<any> {
-    return this.request<any>(`/api/deals/${dealId}`);
+  async getDealById(dealId: number): Promise<unknown> {
+    return this.request<unknown>(`/api/deals/${dealId}`);
   }
 
   async downloadDealPdf(dealId: number): Promise<Blob> {
@@ -277,9 +317,12 @@ class ApiService {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const response = await fetch(`${API_URL}/api/deals/${dealId}/download`, {
+    const endpoint = `/api/deals/${dealId}/download`;
+    const response = await fetch(`${API_URL}${endpoint}`, {
       headers,
     });
+
+    this.handleAuthError(response, endpoint);
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -295,9 +338,12 @@ class ApiService {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const response = await fetch(`${API_URL}/api/deals/${dealId}/download/spending-unit`, {
+    const endpoint = `/api/deals/${dealId}/download/spending-unit`;
+    const response = await fetch(`${API_URL}${endpoint}`, {
       headers,
     });
+
+    this.handleAuthError(response, endpoint);
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -313,9 +359,12 @@ class ApiService {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const response = await fetch(`${API_URL}/api/deals/${dealId}/download/receiving-unit`, {
+    const endpoint = `/api/deals/${dealId}/download/receiving-unit`;
+    const response = await fetch(`${API_URL}${endpoint}`, {
       headers,
     });
+
+    this.handleAuthError(response, endpoint);
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -339,6 +388,3 @@ class ApiService {
 
 export const apiService = new ApiService();
 export type { DocumentBatch as DocumentBatchType };
-
-
-
